@@ -6,23 +6,84 @@
         xmlns:local="clr-namespace:AutoCursorLock"
         Loaded="Window_Loaded"
         mc:Ignorable="d"
-        Title="AutoCursorLock" Height="450" Width="800">
-    <Grid>
-        <ListBox
-            x:Name="listBox1"
-            ItemsSource="{Binding Processes}">
-            <ListBox.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto" />
-                            <ColumnDefinition Width="*" />
-                        </Grid.ColumnDefinitions>
-                        <Image Grid.Column="0" Source="{Binding Icon}" />
-                        <TextBlock Grid.Column="1" Text="{Binding Name}" />
-                    </Grid>
-                </DataTemplate>
-            </ListBox.ItemTemplate>
-        </ListBox>
+        Title="AutoCursorLock" Height="620" Width="550">
+    <Grid x:Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <Grid Grid.Row="0" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+
+            <TextBlock Grid.Row="0" Text="Enabled Processes:" />
+            <ListView Grid.Row="1" x:Name="enabledProcessList" ItemsSource="{Binding UserSettings.EnabledProcesses}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ToolTip="{Binding Path}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20" />
+                                <RowDefinition Height="20" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="200" />
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.RowSpan="2" Source="{Binding Icon}" />
+                            <TextBlock Grid.Column="1" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                            <TextBlock Grid.Column="1" Grid.Row="1" TextTrimming="CharacterEllipsis" Text="{Binding Path}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Grid.Row="2" Content="Remove" Click="RemoveButton_Click" />
+        </Grid>
+        
+        <Grid Grid.Row="1" Margin="5,0,5,5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="*" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            
+            <TextBlock Grid.Row="0" Text="Add Processes:" />
+            <ListView Grid.Row="1" x:Name="processList" ItemsSource="{Binding Processes}">
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <WrapPanel Width="{Binding (FrameworkElement.ActualWidth), RelativeSource={RelativeSource AncestorType=ScrollContentPresenter}}"/>
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid ToolTip="{Binding Path}">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="20" />
+                                <RowDefinition Height="20" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="20" />
+                                <ColumnDefinition Width="200" />
+                            </Grid.ColumnDefinitions>
+                            <Image Grid.RowSpan="2" Source="{Binding Icon}" />
+                            <TextBlock Grid.Column="1" TextTrimming="CharacterEllipsis" Text="{Binding Name}" />
+                            <TextBlock Grid.Column="1" Grid.Row="1" TextTrimming="CharacterEllipsis" Text="{Binding Path}" />
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <Button Grid.Row="2" Content="Add" Click="AddButton_Click" />
+        </Grid>
     </Grid>
 </Window>

@@ -51,7 +51,7 @@ namespace AutoCursorLock
                 using Process p = Process.GetProcessById((int)processId);
                 Trace.WriteLine(p.ProcessName);
 
-                ApplicationChanged?.Invoke(this, new ApplicationEventArgs(processId, p.ProcessName));
+                ApplicationChanged?.Invoke(this, new ApplicationEventArgs(hwnd, processId, p.ProcessName));
             }
             catch (InvalidOperationException)
             {

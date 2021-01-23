@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
@@ -17,17 +18,20 @@ namespace AutoCursorLock
         public ObservableCollection<ProcessListItem> Processes { get; } = new ObservableCollection<ProcessListItem>();
 
         private KeyHandler? keyHandler;
-        private MouseHandler? mouseHandler;
         private ApplicationHandler? applicationHandler;
 
         private bool globalLockEnabled = true;
         private bool applicationLockEnabled = false;
 
+        private System.Windows.Forms.NotifyIcon notifyIcon1;
+
         public MainWindow()
         {
             InitializeComponent();
 
-            listBox1.DataContext = this;
+            UserSettings = UserSettings.Load();
+
+            mainGrid.DataContext = this;
 
             var processes = Process.GetProcesses();
             foreach (var p in processes)
@@ -36,9 +40,7 @@ namespace AutoCursorLock
                 {
                     try
                     {
-                        using var ico = System.Drawing.Icon.ExtractAssociatedIcon(p.MainModule.FileName);
-                        var iconSource = Imaging.CreateBitmapSourceFromHIcon(ico.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
-                        this.Processes.Add(new ProcessListItem(p.ProcessName, new Uri(p.MainModule.FileName), iconSource));
+                        this.Processes.Add(new ProcessListItem(p.ProcessName, p.MainModule.FileName));
                     }
                     catch (Exception ex)
                     {
@@ -46,6 +48,17 @@ namespace AutoCursorLock
                     }
                 }
             }
+
+            //var components = new System.ComponentModel.Container();
+            //this.notifyIcon1 = new System.Windows.Forms.NotifyIcon(components);
+
+            //notifyIcon1.DoubleClick += new System.EventHandler(notifyIcon1_DoubleClick);
+        }
+        public UserSettings UserSettings { get; }
+
+        private void notifyIcon1_DoubleClick()
+        {
+
         }
 
         protected override void OnSourceInitialized(EventArgs e)
@@ -60,6 +73,8 @@ namespace AutoCursorLock
             base.OnClosed(e);
             keyHandler?.Unregister();
             MouseHandler.UnlockCursor();
+
+            UserSettings.Save();
         }
 
         private void HandleHotkey()
@@ -68,21 +83,21 @@ namespace AutoCursorLock
 
             globalLockEnabled = !globalLockEnabled;
 
-            AdjustLock();
+            applicationHandler?.Update();
         }
 
         private void OnApplicationChanged(object? sender, ApplicationEventArgs e)
         {
-            applicationLockEnabled = e.ProcessName == "AutoCursorLock";
+            applicationLockEnabled = UserSettings.EnabledProcesses.Any(x => x.Name == e.ProcessName);
 
-            AdjustLock();
+            AdjustLock(e.Handle);
         }
 
-        private void AdjustLock()
+        private void AdjustLock(IntPtr hwnd)
         {
-            if (mouseHandler != null && globalLockEnabled && applicationLockEnabled)
+            if (globalLockEnabled && applicationLockEnabled)
             {
-                if (!mouseHandler.LockCursor())
+                if (!MouseHandler.LockCursor(hwnd))
                 {
                     Trace.WriteLine("Lock cursor error code " + Marshal.GetLastWin32Error());
                 }
@@ -129,13 +144,24 @@ namespace AutoCursorLock
                 Trace.WriteLine("Hotkey error code " + errorCode);
             }
 
-            mouseHandler = new MouseHandler(hWnd);
             applicationHandler = new ApplicationHandler();
             success = applicationHandler.Register();
             Trace.WriteLine("Register application hook: " + success);
             applicationHandler.ApplicationChanged += OnApplicationChanged;
 
             applicationHandler.Update();
+        }
+
+        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        {
+            var processItem = (ProcessListItem)enabledProcessList.SelectedItem;
+            UserSettings.EnabledProcesses.Remove(processItem);
+        }
+
+        private void AddButton_Click(object sender, RoutedEventArgs e)
+        {
+            var processItem = (ProcessListItem)processList.SelectedItem;
+            UserSettings.EnabledProcesses.Add(processItem);
         }
     }
 }
