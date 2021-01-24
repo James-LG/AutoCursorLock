@@ -1,35 +1,59 @@
-﻿using System;
-using System.Diagnostics;
+﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 
 namespace AutoCursorLock
 {
+    using System;
+    using System.Diagnostics;
+
+    /// <summary>
+    /// Handles the detection of application switching and exposes the corresponding events.
+    /// </summary>
     internal class ApplicationHandler
     {
-        /// <summary>
+        /// <remarks>
         /// This has to be an instance member so it doesn't get garbage collected.
-        /// </summary>
-        NativeMethods.WinEventDelegate? dele = null;
-
-        private const uint WINEVENT_OUTOFCONTEXT = 0;
-        private const uint EVENT_SYSTEM_FOREGROUND = 3;
+        /// </remarks>
+        private NativeMethods.WinEventDelegate? eventDelegate = null;
 
         private IntPtr hook;
 
+        /// <summary>
+        /// Raised when the application in the foreground has changed.
+        /// </summary>
         public event EventHandler<ApplicationEventArgs>? ApplicationChanged;
 
+        /// <summary>
+        /// Registers the application monitor with the Windows API.
+        /// </summary>
+        /// <returns>Success indicator.</returns>
         public bool Register()
         {
-            dele = new NativeMethods.WinEventDelegate(WinEventProc);
-            hook = NativeMethods.SetWinEventHook(EVENT_SYSTEM_FOREGROUND, EVENT_SYSTEM_FOREGROUND, IntPtr.Zero, dele, 0, 0, WINEVENT_OUTOFCONTEXT);
+            this.eventDelegate = new NativeMethods.WinEventDelegate(WinEventProc);
+            this.hook = NativeMethods.SetWinEventHook(
+                NativeMethods.EVENT_SYSTEM_FOREGROUND,
+                NativeMethods.EVENT_SYSTEM_FOREGROUND,
+                IntPtr.Zero,
+                this.eventDelegate,
+                0,
+                0,
+                NativeMethods.WINEVENT_OUTOFCONTEXT);
 
-            return hook != IntPtr.Zero;
+            return this.hook != IntPtr.Zero;
         }
 
+        /// <summary>
+        /// Registers the application monitor with the Windows API.
+        /// </summary>
+        /// <returns>Success indicator.</returns>
         public bool Unregister()
         {
-            return NativeMethods.UnhookWinEvent(hook);
+            return NativeMethods.UnhookWinEvent(this.hook);
         }
 
+        /// <summary>
+        /// Force an <see cref="ApplicationChanged"/> event with the current foreground window.
+        /// </summary>
         public void Update()
         {
             var hwnd = NativeMethods.GetForegroundWindow();
@@ -44,7 +68,7 @@ namespace AutoCursorLock
 
         private void RaiseApplicationChanged(IntPtr hwnd)
         {
-            NativeMethods.GetWindowThreadProcessId(hwnd, out uint processId);
+            _ = NativeMethods.GetWindowThreadProcessId(hwnd, out uint processId);
 
             try
             {

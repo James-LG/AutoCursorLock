@@ -1,7 +1,10 @@
-﻿using System;
+﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 
 namespace AutoCursorLock
 {
+    using System;
+
     internal class KeyHandler
     {
         private readonly HotKey hotKey;
@@ -15,14 +18,14 @@ namespace AutoCursorLock
 
         public bool Register()
         {
-            var modifier = hotKey.GetKeyModifier();
-            var virtualKey = hotKey.GetVirtualKeyCode();
-            return NativeMethods.RegisterHotKey(hWnd, hotKey.Id, modifier, virtualKey);
+            var modifier = this.hotKey.GetKeyModifier();
+            var virtualKey = this.hotKey.GetVirtualKeyCode();
+            return NativeMethods.RegisterHotKey(this.hWnd, this.hotKey.Id, modifier, virtualKey);
         }
 
         public bool Unregister()
         {
-            return NativeMethods.UnregisterHotKey(hWnd, hotKey.Id);
+            return NativeMethods.UnregisterHotKey(this.hWnd, this.hotKey.Id);
         }
     }
 }

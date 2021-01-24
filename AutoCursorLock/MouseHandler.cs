@@ -1,12 +1,15 @@
-﻿using System;
+﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
 
 namespace AutoCursorLock
 {
-	internal static class MouseHandler
-	{
+    using System;
+
+    internal static class MouseHandler
+    {
         public static bool LockCursor(IntPtr hwnd)
-		{
-			if (NativeMethods.GetWindowRect(hwnd, out var rect))
+        {
+            if (NativeMethods.GetWindowRect(hwnd, out var rect))
             {
                 var border = GetWindowBorderSizes(hwnd);
 
@@ -16,14 +19,15 @@ namespace AutoCursorLock
                 rect.right -= border.right;
 
                 return NativeMethods.ClipCursor(rect);
-			}
-			return false;
-		}
+            }
 
-		public static bool UnlockCursor()
+            return false;
+        }
+
+        public static bool UnlockCursor()
         {
-			return NativeMethods.ClipCursor(IntPtr.Zero);
-		}
+            return NativeMethods.ClipCursor(IntPtr.Zero);
+        }
 
         /// <summary>
         /// Gets the size in pixel of a window's border.
@@ -32,7 +36,7 @@ namespace AutoCursorLock
         /// <returns>Returns the border size in pixel.</returns>
         public static NativeMethods.RECT GetWindowBorderSizes(IntPtr window)
         {
-            var windowBorderSizes = new NativeMethods.RECT();
+            var windowBorderSizes = default(NativeMethods.RECT);
 
             var styles = NativeMethods.GetWindowLong(window, NativeMethods.GetWindowLongIndex.GWL_STYLE);
 
