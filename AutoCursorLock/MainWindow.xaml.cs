@@ -31,22 +31,6 @@ namespace AutoCursorLock
 
             this.mainGrid.DataContext = this;
 
-            var processes = Process.GetProcesses();
-            foreach (var p in processes)
-            {
-                if (p.MainWindowHandle != IntPtr.Zero && p.Id != Process.GetCurrentProcess().Id && p.MainModule?.FileName != null)
-                {
-                    try
-                    {
-                        Processes.Add(new ProcessListItem(p.ProcessName, p.MainModule.FileName));
-                    }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine("Get process failed: " + ex);
-                    }
-                }
-            }
-
             MinimizeToTray.Enable(this);
         }
 
@@ -157,6 +141,25 @@ namespace AutoCursorLock
         {
             var processItem = (ProcessListItem)this.processList.SelectedItem;
             UserSettings.EnabledProcesses.Add(processItem);
+        }
+
+        private void RefreshButton_Click(object sender, RoutedEventArgs e)
+        {
+            var processes = Process.GetProcesses();
+            foreach (var p in processes)
+            {
+                if (p.MainWindowHandle != IntPtr.Zero && p.Id != Environment.ProcessId && p.MainModule?.FileName != null)
+                {
+                    try
+                    {
+                        Processes.Add(new ProcessListItem(p.ProcessName, p.MainModule.FileName));
+                    }
+                    catch (Exception ex)
+                    {
+                        Trace.WriteLine("Get process failed: " + ex);
+                    }
+                }
+            }
         }
     }
 }

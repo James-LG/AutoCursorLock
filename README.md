@@ -16,10 +16,8 @@ Press `Shift+HOME` to toggle the auto locking for all processes.
 
 ## Planned Features
 
-- Minimize to tray
 - Auto start program on PC boot
 - Manual selection of processes from file explorer
-- Refresh process list button
 - Remapping of hotkeys
 
 ## Contributing

@@ -83,7 +83,14 @@
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>
-            <Button Grid.Row="2" Content="Add" Click="AddButton_Click" />
+            <Grid Grid.Row="2">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button Content="Add" Click="AddButton_Click" />
+                <Button Grid.Column="1" Content="Refresh" Click="RefreshButton_Click" />
+            </Grid>
         </Grid>
     </Grid>
 </Window>
