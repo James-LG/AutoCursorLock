@@ -1,0 +1,57 @@
+on:
+  push:
+    branches:
+      - master
+
+name: release-please
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: GoogleCloudPlatform/release-please-action@v2
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          release-type: simple
+          package-name: release-please-action
+
+  add-archive:
+    env:
+      Solution_Name: AutoCursorLock
+
+    needs: release-please
+    if: ${{ needs.release-please.outputs.release_created }}
+    name: Add archive to release
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      # Install the .NET Core workload
+      - name: Install .NET Core
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 5.0.x
+        
+      # Create the app package
+      - name: Create the app package
+        run: |
+          $env:Version=Get-Content version.txt
+          dotnet publish $env:Solution_Name -c Release -p:Version=$env:Version
+
+      - name: Build archive
+        run: |
+          Compress-Archive $env:Solution_Name\bin\Release\net5.0-windows\publish\* autocursorlock.zip
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release-please.outputs.upload_url }}
+          asset_path: ./autocursorlock.zip
+          asset_name: autocursorlock-${{ needs.release-please.outputs.tag_name }}.zip
+          asset_content_type: application/gzip
