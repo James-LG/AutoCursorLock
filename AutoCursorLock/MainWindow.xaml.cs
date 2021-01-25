@@ -148,16 +148,16 @@ namespace AutoCursorLock
             var processes = Process.GetProcesses();
             foreach (var p in processes)
             {
-                if (p.MainWindowHandle != IntPtr.Zero && p.Id != Environment.ProcessId && p.MainModule?.FileName != null)
+                try
                 {
-                    try
+                    if (p.MainWindowHandle != IntPtr.Zero && p.Id != Environment.ProcessId && p.MainModule?.FileName != null)
                     {
                         Processes.Add(new ProcessListItem(p.ProcessName, p.MainModule.FileName));
                     }
-                    catch (Exception ex)
-                    {
-                        Trace.WriteLine("Get process failed: " + ex);
-                    }
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine("Get process failed: " + ex);
                 }
             }
         }
