@@ -161,5 +161,11 @@ namespace AutoCursorLock
                 }
             }
         }
+
+        private void AboutItem_Click(object sender, RoutedEventArgs e)
+        {
+            var about = new AboutWindow();
+            about.ShowDialog();
+        }
     }
 }
