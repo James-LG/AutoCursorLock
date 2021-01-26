@@ -4,6 +4,7 @@
 namespace AutoCursorLock
 {
     using System.Windows.Input;
+    using AutoCursorLock.Native;
 
     public class HotKey
     {
@@ -14,21 +15,19 @@ namespace AutoCursorLock
 
         private readonly uint virtualKey;
 
-        public HotKey(int id, Key key)
+        public HotKey(int id, Key key, ModifierKey modifierKey)
         {
             Id = id;
+            Key = key;
+            ModifierKey = modifierKey;
             this.virtualKey = (uint)KeyInterop.VirtualKeyFromKey(key);
         }
 
         public int Id { get; }
 
-        public bool WithAlt { get; set; }
+        public Key Key { get; }
 
-        public bool WithControl { get; set; }
-
-        public bool WithShift { get; set; }
-
-        public bool WithWin { get; set; }
+        public ModifierKey ModifierKey { get; }
 
         public uint GetVirtualKeyCode()
         {
@@ -37,15 +36,20 @@ namespace AutoCursorLock
 
         public uint GetKeyModifier()
         {
-            return (BoolToUInt(WithAlt) & FlagAlt)
-               | (BoolToUInt(WithControl) & FlagControl)
-               | (BoolToUInt(WithShift) & FlagShift)
-               | (BoolToUInt(WithWin) & FlagWin);
+            return (BoolToUInt(ModifierKey == ModifierKey.Alt) & FlagAlt)
+               | (BoolToUInt(ModifierKey == ModifierKey.Control) & FlagControl)
+               | (BoolToUInt(ModifierKey == ModifierKey.Shift) & FlagShift)
+               | (BoolToUInt(ModifierKey == ModifierKey.Windows) & FlagWin);
         }
 
         private static uint BoolToUInt(bool val)
         {
             return val ? uint.MaxValue : 0;
+        }
+
+        public override string ToString()
+        {
+            return $"{ModifierKey}+{Key}";
         }
     }
 }

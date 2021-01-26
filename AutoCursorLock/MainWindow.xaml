@@ -3,12 +3,27 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:AutoCursorLock"
+        xmlns:local="clr-namespace:AutoCursorLock.Native"
+        xmlns:localExtensions="clr-namespace:AutoCursorLock.Extensions"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
         Loaded="Window_Loaded"
         mc:Ignorable="d"
         Title="AutoCursorLock" Height="620" Width="550">
+    <Window.Resources>
+        <ObjectDataProvider x:Key="dataFromEnum" MethodName="GetValues"
+                        ObjectType="{x:Type sys:Enum}">
+            <ObjectDataProvider.MethodParameters>
+                <x:Type TypeName="local:ModifierKey"/>
+            </ObjectDataProvider.MethodParameters>
+        </ObjectDataProvider>
+
+        <localExtensions:KeyToStringConverter x:Key="KeyConverter" />
+        <localExtensions:BoolColorSelector x:Key="BoolColorSelector" />
+    </Window.Resources>
     <Grid x:Name="mainGrid">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="*" />
@@ -22,8 +37,55 @@
                 <MenuItem Header="_About" Click="AboutItem_Click"/>
             </MenuItem>
         </Menu>
-        
+
         <Grid Grid.Row="1" Margin="5">
+            <TextBlock Grid.Row="2" Margin="0,5,0,0">
+                <Run>Cursor Locked: </Run>
+                <Run Text="{Binding ApplicationLockEnabled, Mode=OneWay}" Foreground="{Binding ApplicationLockEnabled, Converter={StaticResource BoolColorSelector}}" />
+            </TextBlock>
+        </Grid>
+
+        <Grid Grid.Row="2" Margin="5">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <TextBlock Grid.Row="0">Toggle Hotkey</TextBlock>
+            <Border Grid.Row="1" Margin="0,2,0,0" BorderThickness="1" BorderBrush="DarkGray">
+                <Grid Margin="5">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="Auto" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <WrapPanel Grid.Row="0" Margin="0,5,0,0">
+                        <ComboBox Name="cmbModifierKey" IsEditable="False" ItemsSource="{Binding Source={StaticResource dataFromEnum}}" SelectedIndex="0" />
+                        <TextBlock>+</TextBlock>
+                        <Button x:Name="btnSetKey" Content="{Binding SelectedKey, Converter={StaticResource KeyConverter}}" Width="40"  Click="btnSetKey_Click"/>
+                        <Button x:Name="btnRegisterHotKey" Margin="5,0,0,0" Click="btnRegisterHotKey_Click">Register HotKey</Button>
+                    </WrapPanel>
+                    <TextBlock Grid.Row="1" Margin="0,5,0,0">
+                        <Run>Current hotkey: </Run>
+                        <Run Text="{Binding UserSettings.HotKey, StringFormat={}{0}, FallbackValue='Not Set', Mode=OneWay}" />
+                    </TextBlock>
+                    <TextBlock Grid.Row="2" Margin="0,5,0,0">
+                        <Run>Locking enabled: </Run>
+                        <Run Text="{Binding GlobalLockEnabled, Mode=OneWay}" Foreground="{Binding GlobalLockEnabled, Converter={StaticResource BoolColorSelector}}" />
+                    </TextBlock>
+                </Grid>
+            </Border>
+            
+        </Grid>
+        
+        <Grid Grid.Row="3" Margin="5,0,5,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
@@ -58,7 +120,7 @@
             <Button Grid.Row="2" Content="Remove" Click="RemoveButton_Click" />
         </Grid>
         
-        <Grid Grid.Row="2" Margin="5,0,5,5">
+        <Grid Grid.Row="4" Margin="5,0,5,5">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />

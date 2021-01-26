@@ -5,17 +5,37 @@ namespace AutoCursorLock
 {
     using System;
     using System.Collections.ObjectModel;
+    using System.ComponentModel;
     using System.IO;
     using Newtonsoft.Json;
 
-    public class UserSettings
+    public class UserSettings : INotifyPropertyChanged
     {
-        public UserSettings(ObservableCollection<ProcessListItem> enabledProcesses)
+        private HotKey? hotKey;
+
+        public UserSettings(ObservableCollection<ProcessListItem> enabledProcesses, HotKey? hotKey)
         {
             EnabledProcesses = enabledProcesses ?? throw new ArgumentNullException(nameof(enabledProcesses));
+            HotKey = hotKey;
         }
 
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public ObservableCollection<ProcessListItem> EnabledProcesses { get; }
+
+        public HotKey? HotKey
+        {
+            get
+            {
+                return this.hotKey;
+            }
+
+            set
+            {
+                this.hotKey = value;
+                NotifyPropertyChanged(nameof(HotKey));
+            }
+        }
 
         public static UserSettings Load()
         {
@@ -26,7 +46,7 @@ namespace AutoCursorLock
                 return JsonConvert.DeserializeObject<UserSettings>(text);
             }
 
-            return new UserSettings(new ObservableCollection<ProcessListItem>());
+            return new UserSettings(new ObservableCollection<ProcessListItem>(), null);
         }
 
         public void Save()
@@ -40,5 +60,13 @@ namespace AutoCursorLock
         }
 
         private static string GetPath() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"AutoCursorLock", "settings.json");
+
+        private void NotifyPropertyChanged(string propertyName)
+        {
+            if (PropertyChanged != null)
+            {
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
+            }
+        }
     }
 }
