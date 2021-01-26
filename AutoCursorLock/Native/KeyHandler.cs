@@ -4,6 +4,7 @@
 namespace AutoCursorLock.Native
 {
     using System;
+    using AutoCursorLock.Models;
 
     internal class KeyHandler
     {

@@ -9,7 +9,12 @@
     <Window.Resources>
         <local:KeyToStringConverter x:Key="KeyConverter" />
     </Window.Resources>
-    <Grid x:Name="mainGrid" PreviewKeyDown="mainGrid_PreviewKeyDown" Focusable="True">
-        <TextBlock Text="{Binding SelectedKey, Converter={StaticResource KeyConverter}, FallbackValue='Press Any Key'}"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid x:Name="mainGrid" PreviewKeyDown="MainGrid_PreviewKeyDown" Focusable="True">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="{Binding SelectedKey, Converter={StaticResource KeyConverter}, FallbackValue='Press Any Key'}"  HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <Button Grid.Row="1" Click="Button_Click">Ok</Button>
     </Grid>
 </Window>

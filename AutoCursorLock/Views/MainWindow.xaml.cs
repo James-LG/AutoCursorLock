@@ -12,6 +12,7 @@ namespace AutoCursorLock
     using System.Windows;
     using System.Windows.Input;
     using System.Windows.Interop;
+    using AutoCursorLock.Models;
     using AutoCursorLock.Native;
 
     /// <summary>
@@ -221,7 +222,7 @@ namespace AutoCursorLock
             about.ShowDialog();
         }
 
-        private void btnRegisterHotKey_Click(object sender, RoutedEventArgs e)
+        private void BtnRegisterHotKey_Click(object sender, RoutedEventArgs e)
         {
             if (this.selectedKey != Key.None)
             {
@@ -237,7 +238,7 @@ namespace AutoCursorLock
             }
         }
 
-        private void btnSetKey_Click(object sender, RoutedEventArgs e)
+        private void BtnSetKey_Click(object sender, RoutedEventArgs e)
         {
             var keyDialog = new SelectKeyDialog();
             keyDialog.ShowDialog();

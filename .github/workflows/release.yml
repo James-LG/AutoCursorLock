@@ -14,15 +14,15 @@ jobs:
       tag_name: ${{ steps.release.outputs.tag_name }}
     steps:
       - uses: GoogleCloudPlatform/release-please-action@v2
+        id: release
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           release-type: simple
-          package-name: release-please-action
+          package-name: AutoCursorLock
 
   add-archive:
     env:
       Solution_Name: AutoCursorLock
-
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     name: Add archive to release

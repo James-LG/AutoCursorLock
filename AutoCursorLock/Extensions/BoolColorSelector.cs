@@ -1,4 +1,7 @@
-﻿namespace AutoCursorLock.Extensions
+﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+namespace AutoCursorLock.Extensions
 {
     using System;
     using System.Globalization;
@@ -9,12 +12,11 @@
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool)
+            return value switch
             {
-                return (bool) value ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red);
-            }
-
-            return Binding.DoNothing;
+                bool => (bool)value ? new SolidColorBrush(Colors.Green) : new SolidColorBrush(Colors.Red),
+                _ => Binding.DoNothing
+            };
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)

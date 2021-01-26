@@ -1,7 +1,7 @@
 ﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-namespace AutoCursorLock
+namespace AutoCursorLock.Models
 {
     using System.Windows.Input;
     using AutoCursorLock.Native;
@@ -36,20 +36,20 @@ namespace AutoCursorLock
 
         public uint GetKeyModifier()
         {
-            return (BoolToUInt(ModifierKey == ModifierKey.Alt) & FlagAlt)
-               | (BoolToUInt(ModifierKey == ModifierKey.Control) & FlagControl)
-               | (BoolToUInt(ModifierKey == ModifierKey.Shift) & FlagShift)
-               | (BoolToUInt(ModifierKey == ModifierKey.Windows) & FlagWin);
-        }
-
-        private static uint BoolToUInt(bool val)
-        {
-            return val ? uint.MaxValue : 0;
+            return BoolToUInt(ModifierKey == ModifierKey.Alt) & FlagAlt
+               | BoolToUInt(ModifierKey == ModifierKey.Control) & FlagControl
+               | BoolToUInt(ModifierKey == ModifierKey.Shift) & FlagShift
+               | BoolToUInt(ModifierKey == ModifierKey.Windows) & FlagWin;
         }
 
         public override string ToString()
         {
             return $"{ModifierKey}+{Key}";
+        }
+
+        private static uint BoolToUInt(bool val)
+        {
+            return val ? uint.MaxValue : 0;
         }
     }
 }

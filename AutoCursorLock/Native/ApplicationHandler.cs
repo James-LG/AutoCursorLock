@@ -5,6 +5,7 @@ namespace AutoCursorLock.Native
 {
     using System;
     using System.Diagnostics;
+    using AutoCursorLock.Models;
 
     /// <summary>
     /// Handles the detection of application switching and exposes the corresponding events.

@@ -7,6 +7,7 @@ namespace AutoCursorLock
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.IO;
+    using AutoCursorLock.Models;
     using Newtonsoft.Json;
 
     public class UserSettings : INotifyPropertyChanged

@@ -24,7 +24,7 @@ namespace AutoCursorLock
 
         public Key SelectedKey { get; set; }
 
-        private void mainGrid_PreviewKeyDown(object sender, KeyEventArgs e)
+        private void MainGrid_PreviewKeyDown(object sender, KeyEventArgs e)
         {
             SelectedKey = e.Key;
 
@@ -37,6 +37,11 @@ namespace AutoCursorLock
             {
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

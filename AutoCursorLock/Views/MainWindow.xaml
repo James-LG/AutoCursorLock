@@ -69,8 +69,8 @@
                     <WrapPanel Grid.Row="0" Margin="0,5,0,0">
                         <ComboBox Name="cmbModifierKey" IsEditable="False" ItemsSource="{Binding Source={StaticResource dataFromEnum}}" SelectedIndex="0" />
                         <TextBlock>+</TextBlock>
-                        <Button x:Name="btnSetKey" Content="{Binding SelectedKey, Converter={StaticResource KeyConverter}}" Width="40"  Click="btnSetKey_Click"/>
-                        <Button x:Name="btnRegisterHotKey" Margin="5,0,0,0" Click="btnRegisterHotKey_Click">Register HotKey</Button>
+                        <Button x:Name="btnSetKey" Content="{Binding SelectedKey, Converter={StaticResource KeyConverter}}" Width="40"  Click="BtnSetKey_Click"/>
+                        <Button x:Name="btnRegisterHotKey" Margin="5,0,0,0" Click="BtnRegisterHotKey_Click">Register HotKey</Button>
                     </WrapPanel>
                     <TextBlock Grid.Row="1" Margin="0,5,0,0">
                         <Run>Current hotkey: </Run>

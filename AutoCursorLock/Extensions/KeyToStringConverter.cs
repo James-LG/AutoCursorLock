@@ -1,4 +1,7 @@
-﻿namespace AutoCursorLock.Extensions
+﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+namespace AutoCursorLock.Extensions
 {
     using System;
     using System.Globalization;
@@ -9,9 +12,8 @@
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is Key)
+            if (value is Key key)
             {
-                var key = (Key)value;
                 var text = key.ToString();
                 return text;
             }
