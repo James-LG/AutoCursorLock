@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.0](https://www.github.com/James-LG/AutoCursorLock/compare/v1.0.0...v1.1.0) (2021-01-26)
+
+
+### Features
+
+* Hotkey remapping and status indicators ([13fd803](https://www.github.com/James-LG/AutoCursorLock/commit/13fd803a81e9a1cc72db773242d8f8d913482c62))
+
 ## 1.0.0 (2021-01-25)
 
 
