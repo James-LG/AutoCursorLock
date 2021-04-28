@@ -199,12 +199,13 @@ namespace AutoCursorLock
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
         {
+            Processes.Clear();
             var processes = Process.GetProcesses();
             foreach (var p in processes)
             {
                 try
                 {
-                    if (p.MainWindowHandle != IntPtr.Zero && p.Id != Environment.ProcessId && p.MainModule?.FileName != null)
+                    if (p.MainWindowHandle != IntPtr.Zero && p.MainModule?.FileName != null)
                     {
                         Processes.Add(new ProcessListItem(p.ProcessName, p.MainModule.FileName));
                     }
