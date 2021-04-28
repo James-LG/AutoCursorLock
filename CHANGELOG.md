@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.1.1](https://www.github.com/James-LG/AutoCursorLock/compare/v1.1.0...v1.1.1) (2021-04-28)
+
+
+### Bug Fixes
+
+* Refreshing no longer duplicates processes ([549cb8f](https://www.github.com/James-LG/AutoCursorLock/commit/549cb8fff9e9eb0d35557a5174d5176db495e8d8))
+
 ## [1.1.0](https://www.github.com/James-LG/AutoCursorLock/compare/v1.0.0...v1.1.0) (2021-01-26)
 
 
