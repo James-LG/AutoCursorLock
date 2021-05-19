@@ -6,6 +6,9 @@ namespace AutoCursorLock.Native
     using System;
     using System.Runtime.InteropServices;
 
+    /// <summary>
+    /// Exposes Windows API functions as well as defining some Windows constants.
+    /// </summary>
     internal static class NativeMethods
     {
         public const uint WINEVENT_OUTOFCONTEXT = 0;

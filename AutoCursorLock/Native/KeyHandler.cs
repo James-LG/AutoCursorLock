@@ -6,27 +6,35 @@ namespace AutoCursorLock.Native
     using System;
     using AutoCursorLock.Models;
 
-    internal class KeyHandler
+    /// <summary>
+    /// Handles the registration of hot keys with Windows.
+    /// </summary>
+    internal static class KeyHandler
     {
-        private readonly HotKey hotKey;
-        private readonly IntPtr hWnd;
-
-        public KeyHandler(HotKey hotKey, IntPtr hWnd)
+        /// <summary>
+        /// Register the given hot key with Windows. Windows must send the hot key events to a window
+        /// so pointed to the given window handle.
+        /// </summary>
+        /// <param name="hotKey">The hot key to register.</param>
+        /// <param name="hWnd">The handle of the window to send the hot key events to.</param>
+        /// <returns>Whether the hot key was successfully registered.</returns>
+        public static bool Register(HotKey hotKey, IntPtr hWnd)
         {
-            this.hotKey = hotKey;
-            this.hWnd = hWnd;
+            var modifier = hotKey.GetKeyModifier();
+            var virtualKey = hotKey.GetVirtualKeyCode();
+            return NativeMethods.RegisterHotKey(hWnd, hotKey.Id, modifier, virtualKey);
         }
 
-        public bool Register()
+        /// <summary>
+        /// Unregister the given hot key with Windows. Windows must send the hot key events to a window
+        /// so pointed to the given window handle.
+        /// </summary>
+        /// <param name="hotKey">The hot key to register.</param>
+        /// <param name="hWnd">The handle of the window to send the hot key events to.</param>
+        /// <returns>Whether the hot key was successfully unregistered.</returns>
+        public static bool Unregister(HotKey hotKey, IntPtr hWnd)
         {
-            var modifier = this.hotKey.GetKeyModifier();
-            var virtualKey = this.hotKey.GetVirtualKeyCode();
-            return NativeMethods.RegisterHotKey(this.hWnd, this.hotKey.Id, modifier, virtualKey);
-        }
-
-        public bool Unregister()
-        {
-            return NativeMethods.UnregisterHotKey(this.hWnd, this.hotKey.Id);
+            return NativeMethods.UnregisterHotKey(hWnd, hotKey.Id);
         }
     }
 }

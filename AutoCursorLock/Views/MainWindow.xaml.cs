@@ -20,7 +20,7 @@ namespace AutoCursorLock
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private KeyHandler? keyHandler;
+        private readonly IntPtr hWnd;
         private ApplicationHandler? applicationHandler;
 
         private bool globalLockEnabled = true;
@@ -28,6 +28,9 @@ namespace AutoCursorLock
 
         private Key selectedKey;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="MainWindow"/> class.
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -38,6 +41,8 @@ namespace AutoCursorLock
             this.mainGrid.DataContext = this;
 
             MinimizeToTray.Enable(this);
+
+            this.hWnd = new WindowInteropHelper(this).Handle;
         }
 
         public event PropertyChangedEventHandler? PropertyChanged;
@@ -98,7 +103,11 @@ namespace AutoCursorLock
         protected override void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
-            this.keyHandler?.Unregister();
+            if (UserSettings.HotKey != null)
+            {
+                KeyHandler.Unregister(UserSettings.HotKey, this.hWnd);
+            }
+
             MouseHandler.UnlockCursor();
 
             UserSettings.Save();
@@ -160,9 +169,7 @@ namespace AutoCursorLock
         {
             if (UserSettings.HotKey != null)
             {
-                var hWnd = new WindowInteropHelper(this).Handle;
-                this.keyHandler = new KeyHandler(UserSettings.HotKey, hWnd);
-                var success = this.keyHandler.Register();
+                var success = KeyHandler.Register(UserSettings.HotKey, this.hWnd);
                 Trace.WriteLine("Register hotkey hook: " + success);
 
                 if (!success)
@@ -194,7 +201,11 @@ namespace AutoCursorLock
         private void AddButton_Click(object sender, RoutedEventArgs e)
         {
             var processItem = (ProcessListItem)this.processList.SelectedItem;
-            UserSettings.EnabledProcesses.Add(processItem);
+
+            if (processItem != null)
+            {
+                UserSettings.EnabledProcesses.Add(processItem);
+            }
         }
 
         private void RefreshButton_Click(object sender, RoutedEventArgs e)
@@ -249,10 +260,7 @@ namespace AutoCursorLock
 
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

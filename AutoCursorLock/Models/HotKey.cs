@@ -6,6 +6,9 @@ namespace AutoCursorLock.Models
     using System.Windows.Input;
     using AutoCursorLock.Native;
 
+    /// <summary>
+    /// Represents a hot key combination.
+    /// </summary>
     public class HotKey
     {
         private const uint FlagAlt = 0x0001;
@@ -15,6 +18,12 @@ namespace AutoCursorLock.Models
 
         private readonly uint virtualKey;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="HotKey"/> class.
+        /// </summary>
+        /// <param name="id">The id.</param>
+        /// <param name="key">The key to be pressed.</param>
+        /// <param name="modifierKey">The modifier key.</param>
         public HotKey(int id, Key key, ModifierKey modifierKey)
         {
             Id = id;
@@ -23,17 +32,40 @@ namespace AutoCursorLock.Models
             this.virtualKey = (uint)KeyInterop.VirtualKeyFromKey(key);
         }
 
+        /// <summary>
+        /// Gets the ID of the HotKey.
+        /// </summary>
+        /// <remarks>
+        /// This is used to register and unregister the hot key with Windows.
+        /// </remarks>
         public int Id { get; }
 
+        /// <summary>
+        /// Gets the key to be pressed.
+        /// </summary>
         public Key Key { get; }
 
+        /// <summary>
+        /// Gets the modifier key.
+        /// </summary>
+        /// <remarks>
+        /// This can be keys such as Shift, or Control.
+        /// </remarks>
         public ModifierKey ModifierKey { get; }
 
+        /// <summary>
+        /// Gets the Win32 virtual key value for this hot key.
+        /// </summary>
+        /// <returns>The Win32 virtual key value.</returns>
         public uint GetVirtualKeyCode()
         {
             return this.virtualKey;
         }
 
+        /// <summary>
+        /// Gets the Win32 key modifier value for this hot key.
+        /// </summary>
+        /// <returns>The Win32 key modifier value.</returns>
         public uint GetKeyModifier()
         {
             return BoolToUInt(ModifierKey == ModifierKey.Alt) & FlagAlt
@@ -42,6 +74,7 @@ namespace AutoCursorLock.Models
                | BoolToUInt(ModifierKey == ModifierKey.Windows) & FlagWin;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             return $"{ModifierKey}+{Key}";

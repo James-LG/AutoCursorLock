@@ -5,8 +5,16 @@ namespace AutoCursorLock.Native
 {
     using System;
 
+    /// <summary>
+    /// Handles the cursor clipping with the Windows API.
+    /// </summary>
     internal static class MouseHandler
     {
+        /// <summary>
+        /// Locks the cursor within the bounds of the given window handle.
+        /// </summary>
+        /// <param name="hwnd">The handle of the window to lock the cursor within.</param>
+        /// <returns>Whether the cursor clipping was a success.</returns>
         public static bool LockCursor(IntPtr hwnd)
         {
             if (NativeMethods.GetWindowRect(hwnd, out var rect))
@@ -24,6 +32,10 @@ namespace AutoCursorLock.Native
             return false;
         }
 
+        /// <summary>
+        /// Removes the cursor clips and unlocks it for free movement.
+        /// </summary>
+        /// <returns>Whether the removal of the cursor clipping was a success.</returns>
         public static bool UnlockCursor()
         {
             return NativeMethods.ClipCursor(IntPtr.Zero);

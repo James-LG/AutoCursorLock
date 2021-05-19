@@ -9,8 +9,16 @@ namespace AutoCursorLock.Models
     using System.Windows.Media.Imaging;
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Represents a process to be displayed in the process selection list.
+    /// </summary>
     public class ProcessListItem
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ProcessListItem"/> class.
+        /// </summary>
+        /// <param name="name">The name of the process.</param>
+        /// <param name="path">The path of the proceess' executable.</param>
         public ProcessListItem(string name, string path)
         {
             Name = name ?? throw new ArgumentNullException(nameof(name));
@@ -23,10 +31,19 @@ namespace AutoCursorLock.Models
             }
         }
 
+        /// <summary>
+        /// Gets the name of the process.
+        /// </summary>
         public string Name { get; }
 
+        /// <summary>
+        /// Gets the path of the process' executable.
+        /// </summary>
         public string Path { get; }
 
+        /// <summary>
+        /// Gets the icon image of the process.
+        /// </summary>
         [JsonIgnore]
         public BitmapSource? Icon { get; }
     }

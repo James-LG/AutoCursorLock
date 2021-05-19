@@ -12,6 +12,9 @@ namespace AutoCursorLock
     /// </summary>
     public partial class SelectKeyDialog : Window, INotifyPropertyChanged
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SelectKeyDialog"/> class.
+        /// </summary>
         public SelectKeyDialog()
         {
             InitializeComponent();
@@ -20,8 +23,12 @@ namespace AutoCursorLock
             this.mainGrid.Focus();
         }
 
+        /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        /// <summary>
+        /// Gets or sets the key selected by the user.
+        /// </summary>
         public Key SelectedKey { get; set; }
 
         private void MainGrid_PreviewKeyDown(object sender, KeyEventArgs e)
@@ -33,10 +40,7 @@ namespace AutoCursorLock
 
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         private void Button_Click(object sender, RoutedEventArgs e)

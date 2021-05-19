@@ -10,20 +10,39 @@ namespace AutoCursorLock
     using AutoCursorLock.Models;
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Represents the program settings as defined by the user.
+    /// </summary>
     public class UserSettings : INotifyPropertyChanged
     {
         private HotKey? hotKey;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="UserSettings"/> class.
+        /// </summary>
+        /// <param name="enabledProcesses">The processes enabled byh the user.</param>
+        /// <param name="hotKey">The hot key to toggle the cursor lock.</param>
         public UserSettings(ObservableCollection<ProcessListItem> enabledProcesses, HotKey? hotKey)
         {
             EnabledProcesses = enabledProcesses ?? throw new ArgumentNullException(nameof(enabledProcesses));
             HotKey = hotKey;
         }
 
+        /// <inheritdoc/>
         public event PropertyChangedEventHandler? PropertyChanged;
 
+        /// <summary>
+        /// Gets the processes that the user has selected to lock the cursor on when in focus.
+        /// </summary>
+        /// <remarks>
+        /// When a window from an enabled process is focused by the user, this program will lock the cursor
+        /// to the bounds of the window until focus is changed to another process.
+        /// </remarks>
         public ObservableCollection<ProcessListItem> EnabledProcesses { get; }
 
+        /// <summary>
+        /// Gets or sets the hot key used to toggle the programs locking feature.
+        /// </summary>
         public HotKey? HotKey
         {
             get
@@ -38,6 +57,10 @@ namespace AutoCursorLock
             }
         }
 
+        /// <summary>
+        /// Loads and deserializes user settings from a json file.
+        /// </summary>
+        /// <returns>The user settings loaded from the json file.</returns>
         public static UserSettings Load()
         {
             var path = GetPath();
@@ -50,6 +73,9 @@ namespace AutoCursorLock
             return new UserSettings(new ObservableCollection<ProcessListItem>(), null);
         }
 
+        /// <summary>
+        /// Serializes and saves the user settings to a json file.
+        /// </summary>
         public void Save()
         {
             var path = GetPath();
@@ -60,14 +86,18 @@ namespace AutoCursorLock
             File.WriteAllText(path, text);
         }
 
+        /// <summary>
+        /// Gets the path of the settings json file.
+        /// </summary>
+        /// <remarks>
+        /// This path will be somethign like: C:\Users\<User></User>\AppData\Roaming\AutoCursorLock\settings.json.
+        /// </remarks>
+        /// <returns>The path to the settings file.</returns>
         private static string GetPath() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), @"AutoCursorLock", "settings.json");
 
         private void NotifyPropertyChanged(string propertyName)
         {
-            if (PropertyChanged != null)
-            {
-                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
-            }
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
