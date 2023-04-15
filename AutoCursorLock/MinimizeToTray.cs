@@ -78,7 +78,7 @@ namespace AutoCursorLock
                 if (minimized && !this.balloonShown)
                 {
                     // If this is the first time minimizing to the tray, show the user what happened
-                    this.notifyIcon.ShowBalloonTip(1000, null, this.window.Title, ToolTipIcon.None);
+                    this.notifyIcon.ShowBalloonTip(1000, this.window.Title, "Minimized to tray...", ToolTipIcon.None);
                     this.balloonShown = true;
                 }
             }
