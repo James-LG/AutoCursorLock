@@ -7,6 +7,7 @@ namespace AutoCursorLock
     using System.Collections.ObjectModel;
     using System.ComponentModel;
     using System.IO;
+    using AutoCursorLock.Dtos;
     using AutoCursorLock.Models;
     using Newtonsoft.Json;
 
@@ -64,13 +65,24 @@ namespace AutoCursorLock
         public static UserSettings Load()
         {
             var path = GetPath();
-            if (File.Exists(path))
+            if (!File.Exists(path))
             {
-                var text = File.ReadAllText(GetPath());
-                return JsonConvert.DeserializeObject<UserSettings>(text);
+                return new UserSettings(new ObservableCollection<ProcessListItem>(), null);
             }
 
-            return new UserSettings(new ObservableCollection<ProcessListItem>(), null);
+            var text = File.ReadAllText(GetPath());
+            var settingsDto = JsonConvert.DeserializeObject<UserSettingsDto>(text);
+
+            var processes = new ObservableCollection<ProcessListItem>();
+            foreach (var processDto in settingsDto.EnabledProcesses)
+            {
+                if (File.Exists(processDto.Path))
+                {
+                    processes.Add(new ProcessListItem(processDto.Name, processDto.Path));
+                }
+            }
+
+            return new UserSettings(processes, settingsDto.HotKey);
         }
 
         /// <summary>
