@@ -1,5 +1,12 @@
 # Changelog
 
+### [1.1.2](https://www.github.com/James-LG/AutoCursorLock/compare/v1.1.1...v1.1.2) (2024-04-15)
+
+
+### Bug Fixes
+
+* Improve error handling when loading user settings ([fa54c5b](https://www.github.com/James-LG/AutoCursorLock/commit/fa54c5b4f765235d4d7e59d3a64bf5d22d776851))
+
 ### [1.1.1](https://www.github.com/James-LG/AutoCursorLock/compare/v1.1.0...v1.1.1) (2021-04-28)
 
 
