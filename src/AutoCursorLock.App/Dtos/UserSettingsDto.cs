@@ -4,6 +4,7 @@
 namespace AutoCursorLock.Dtos
 {
     using AutoCursorLock.Models;
+    using AutoCursorLock.Native;
 
     /// <summary>
     /// Represents a process to be displayed in the process selection list.

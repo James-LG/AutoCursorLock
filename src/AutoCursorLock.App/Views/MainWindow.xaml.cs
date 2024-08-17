@@ -1,7 +1,7 @@
 ﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-namespace AutoCursorLock
+namespace AutoCursorLock.App
 {
     using System;
     using System.Collections.ObjectModel;
@@ -12,6 +12,7 @@ namespace AutoCursorLock
     using System.Windows;
     using System.Windows.Input;
     using System.Windows.Interop;
+    using AutoCursorLock.App.Extensions;
     using AutoCursorLock.Models;
     using AutoCursorLock.Native;
 
@@ -244,7 +245,7 @@ namespace AutoCursorLock
                     modifierKey = (ModifierKey)this.cmbModifierKey.SelectedValue;
                 }
 
-                UserSettings.HotKey = new HotKey(0, this.selectedKey, modifierKey);
+                UserSettings.HotKey = new HotKey(0, this.selectedKey.ToVirtualKey(), modifierKey);
 
                 RegisterHotKey();
             }

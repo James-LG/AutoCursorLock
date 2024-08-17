@@ -9,6 +9,7 @@ namespace AutoCursorLock
     using System.IO;
     using AutoCursorLock.Dtos;
     using AutoCursorLock.Models;
+    using AutoCursorLock.Native;
     using Newtonsoft.Json;
 
     /// <summary>
