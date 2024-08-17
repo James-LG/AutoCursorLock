@@ -3,8 +3,8 @@
 
 namespace AutoCursorLock.Native
 {
-    using System;
     using AutoCursorLock.Models;
+    using System;
 
     /// <summary>
     /// Handles the registration of hot keys with Windows.
