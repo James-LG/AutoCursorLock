@@ -15,8 +15,8 @@ internal static class KeyExtensions
     /// </summary>
     /// <param name="key">The key to convert.</param>
     /// <returns>The Win32 virtual key code.</returns>
-    public static uint ToVirtualKey(this Key key)
+    public static int ToVirtualKey(this Key key)
     {
-        return (uint)KeyInterop.VirtualKeyFromKey(key);
+        return KeyInterop.VirtualKeyFromKey(key);
     }
 }

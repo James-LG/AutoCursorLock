@@ -1,7 +1,7 @@
 ﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-namespace AutoCursorLock.App
+namespace AutoCursorLock.App.Views
 {
     using System;
     using System.Collections.ObjectModel;
@@ -13,38 +13,54 @@ namespace AutoCursorLock.App
     using System.Windows.Input;
     using System.Windows.Interop;
     using AutoCursorLock.App.Extensions;
+    using AutoCursorLock.App.Models;
+    using AutoCursorLock.App.Services;
     using AutoCursorLock.Models;
     using AutoCursorLock.Native;
+    using AutoCursorLock.Sdk.Models;
+    using Microsoft.Extensions.Logging;
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml.
     /// </summary>
     public partial class MainWindow : Window, INotifyPropertyChanged
     {
-        private readonly IntPtr hWnd;
-        private ApplicationHandler? applicationHandler;
+        private ApplicationHandler applicationHandler;
 
         private bool globalLockEnabled = true;
         private bool applicationLockEnabled = false;
+        private WindowInteropHelper windowInteropHelper;
 
         private Key selectedKey;
+
+        private readonly SaveUserSettingsOperation saveUserSettingsOperation;
+        private readonly ILogger<MainWindow> logger;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="MainWindow"/> class.
         /// </summary>
-        public MainWindow()
+        public MainWindow(
+            ApplicationHandler applicationHandler,
+            SaveUserSettingsOperation saveUserSettingsOperation,
+            UserSettings userSettings,
+            ILogger<MainWindow> logger)
         {
+            this.applicationHandler = applicationHandler;
+            this.saveUserSettingsOperation = saveUserSettingsOperation;
+            this.logger = logger;
             InitializeComponent();
 
-            UserSettings = UserSettings.Load();
             NotifyPropertyChanged(nameof(UserSettings));
 
             this.mainGrid.DataContext = this;
 
             MinimizeToTray.Enable(this);
 
-            this.hWnd = new WindowInteropHelper(this).Handle;
+            this.windowInteropHelper = new WindowInteropHelper(this);
+            UserSettings = userSettings;
         }
+
+        private IntPtr Hwnd => this.windowInteropHelper.Handle;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
@@ -101,22 +117,24 @@ namespace AutoCursorLock.App
             source.AddHook(WndProc);
         }
 
-        protected override void OnClosed(EventArgs e)
+        protected override async void OnClosed(EventArgs e)
         {
             base.OnClosed(e);
             if (UserSettings.HotKey != null)
             {
-                KeyHandler.Unregister(UserSettings.HotKey, this.hWnd);
+                KeyHandler.Unregister(UserSettings.HotKey, Hwnd);
             }
 
             MouseHandler.UnlockCursor();
 
-            UserSettings.Save();
+            var userSettingsModel = UserSettings.ToModel();
+
+            await this.saveUserSettingsOperation.InvokeAsync(userSettingsModel);
         }
 
         private void HandleHotkey()
         {
-            Trace.WriteLine("Key pressed");
+            this.logger.LogDebug("Hotkey pressed");
 
             GlobalLockEnabled = !GlobalLockEnabled;
 
@@ -125,7 +143,14 @@ namespace AutoCursorLock.App
 
         private void OnApplicationChanged(object? sender, ApplicationEventArgs e)
         {
+            this.logger.LogDebug("Application changed: {ProcessName}", e.ProcessName);
+
             ApplicationLockEnabled = UserSettings.EnabledProcesses.Any(x => x.Name == e.ProcessName);
+
+            if (ApplicationLockEnabled)
+            {
+                this.logger.LogInformation("Locking cursor for {ProcessName}", e.ProcessName);
+            }
 
             AdjustLock(e.Handle);
         }
@@ -136,22 +161,22 @@ namespace AutoCursorLock.App
             {
                 if (!MouseHandler.LockCursor(hwnd))
                 {
-                    Trace.WriteLine("Lock cursor error code " + Marshal.GetLastWin32Error());
+                    this.logger.LogError("Lock cursor error code {ErrorCode}", Marshal.GetLastWin32Error());
                 }
                 else
                 {
-                    Trace.WriteLine("Cursor locked");
+                    this.logger.LogDebug("Cursor locked");
                 }
             }
             else
             {
                 if (!MouseHandler.UnlockCursor())
                 {
-                    Trace.WriteLine("Unlock cursor error code " + Marshal.GetLastWin32Error());
+                    this.logger.LogError("Unlock cursor error code {ErrorCode}", Marshal.GetLastWin32Error());
                 }
                 else
                 {
-                    Trace.WriteLine("Cursor unlocked");
+                    this.logger.LogDebug("Cursor unlocked");
                 }
             }
         }
@@ -170,13 +195,13 @@ namespace AutoCursorLock.App
         {
             if (UserSettings.HotKey != null)
             {
-                var success = KeyHandler.Register(UserSettings.HotKey, this.hWnd);
-                Trace.WriteLine("Register hotkey hook: " + success);
+                var success = KeyHandler.Register(UserSettings.HotKey, Hwnd);
+                this.logger.LogDebug("Register hotkey hook: {Success}", success);
 
                 if (!success)
                 {
                     var errorCode = Marshal.GetLastWin32Error();
-                    Trace.WriteLine("Hotkey error code " + errorCode);
+                    this.logger.LogError("Error registering hotkey: {ErrorCode}", errorCode);
                 }
             }
         }
@@ -185,9 +210,15 @@ namespace AutoCursorLock.App
         {
             RegisterHotKey();
 
-            this.applicationHandler = new ApplicationHandler();
             var success = this.applicationHandler.Register();
-            Trace.WriteLine("Register application hook: " + success);
+            this.logger.LogDebug("Register application hook: {Success}", success);
+
+            if (!success)
+            {
+                var errorCode = Marshal.GetLastWin32Error();
+                this.logger.LogError("Application hook error code {ErrorCode}", errorCode);
+            }
+
             this.applicationHandler.ApplicationChanged += OnApplicationChanged;
 
             this.applicationHandler.Update();
@@ -219,12 +250,13 @@ namespace AutoCursorLock.App
                 {
                     if (p.MainWindowHandle != IntPtr.Zero && p.MainModule?.FileName != null)
                     {
-                        Processes.Add(new ProcessListItem(p.ProcessName, p.MainModule.FileName));
+                        var process = ProcessListItemExtensions.FromPath(p.MainModule.FileName);
+                        Processes.Add(process);
                     }
                 }
                 catch (Exception ex)
                 {
-                    Trace.WriteLine("Get process failed: " + ex);
+                    this.logger.LogError(ex, "Failed to get process list item for process: {ProcessName}", p.ProcessName);
                 }
             }
         }
@@ -239,13 +271,18 @@ namespace AutoCursorLock.App
         {
             if (this.selectedKey != Key.None)
             {
-                ModifierKey modifierKey = ModifierKey.None;
+                var modifierKeys = new ModifierKey[2];
                 if (this.cmbModifierKey.SelectedValue != null)
                 {
-                    modifierKey = (ModifierKey)this.cmbModifierKey.SelectedValue;
+                    modifierKeys[0] = (ModifierKey)this.cmbModifierKey.SelectedValue;
                 }
 
-                UserSettings.HotKey = new HotKey(0, this.selectedKey.ToVirtualKey(), modifierKey);
+                if (this.cmbModifier2Key.SelectedValue != null)
+                {
+                    modifierKeys[1] = (ModifierKey)this.cmbModifier2Key.SelectedValue;
+                }
+
+                UserSettings.HotKey = new HotKey(0, modifierKeys, this.selectedKey.ToVirtualKey());
 
                 RegisterHotKey();
             }

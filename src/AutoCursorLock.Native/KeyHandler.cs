@@ -3,6 +3,7 @@
 
 namespace AutoCursorLock.Native;
 
+using AutoCursorLock.Sdk.Models;
 using System;
 
 /// <summary>
@@ -19,8 +20,15 @@ public static class KeyHandler
     /// <returns>Whether the hot key was successfully registered.</returns>
     public static bool Register(HotKey hotKey, IntPtr hWnd)
     {
-        var modifier = hotKey.GetKeyModifier();
-        return NativeMethods.RegisterHotKey(hWnd, hotKey.Id, modifier, hotKey.Key);
+        var modifier = ModifierKey.None;
+        foreach (var modifierKey in hotKey.ModifierKeys)
+        {
+            modifier |= modifierKey;
+        }
+
+        var modifierValue = (uint)modifier;
+
+        return NativeMethods.RegisterHotKey(hWnd, hotKey.Id, modifierValue, (uint)hotKey.Key);
     }
 
     /// <summary>
