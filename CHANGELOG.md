@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.0.1](https://www.github.com/James-LG/AutoCursorLock/compare/v2.0.0...v2.0.1) (2024-08-22)
+
+
+### Bug Fixes
+
+* Return default user settings if file not found ([c0c38d9](https://www.github.com/James-LG/AutoCursorLock/commit/c0c38d96de3b6900e7af00dbd2adbaef2c03eb56))
+
 ## [2.0.0](https://www.github.com/James-LG/AutoCursorLock/compare/v1.1.2...v2.0.0) (2024-08-22)
 
 
