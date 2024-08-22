@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.0.0](https://www.github.com/James-LG/AutoCursorLock/compare/v1.1.2...v2.0.0) (2024-08-22)
+
+
+### ⚠ BREAKING CHANGES
+
+* Two modifier keys can be used for hotkeys
+
+### Features
+
+* Support locking to monitor ([0350a01](https://www.github.com/James-LG/AutoCursorLock/commit/0350a017d1f2a91514f9ca6f748c35e343f22142))
+* Two modifier keys can be used for hotkeys ([ba72e0b](https://www.github.com/James-LG/AutoCursorLock/commit/ba72e0b783e9a6f506df43fd549243bbcdda7f0a))
+
+
+### Bug Fixes
+
+* **ci:** Fix dotnet commands in desktop build ([49607b8](https://www.github.com/James-LG/AutoCursorLock/commit/49607b88795c6bdbd4f7dff8dff98c5014be00c9))
+
 ### [1.1.2](https://www.github.com/James-LG/AutoCursorLock/compare/v1.1.1...v1.1.2) (2024-04-15)
 
 
