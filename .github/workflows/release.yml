@@ -43,11 +43,11 @@ jobs:
       - name: Create the app package
         run: |
           $env:Version=Get-Content version.txt
-          dotnet publish $env:Solution_Name -c Release -p:Version=$env:Version
+          dotnet publish -c Release -p:Version=$env:Version
 
       - name: Build archive
         run: |
-          Compress-Archive $env:Solution_Name\bin\Release\net5.0-windows\publish\* autocursorlock.zip
+          Compress-Archive $env:Solution_Name\bin\Release\net8.0-windows\publish\* autocursorlock.zip
 
       - name: Upload Release Asset
         id: upload-release-asset
