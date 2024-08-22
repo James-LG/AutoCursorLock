@@ -1,304 +1,366 @@
 ﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-namespace AutoCursorLock.App.Views
+namespace AutoCursorLock.App.Views;
+
+using System;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Interop;
+using AutoCursorLock.App.Extensions;
+using AutoCursorLock.App.Models;
+using AutoCursorLock.App.Services;
+using AutoCursorLock.Native;
+using AutoCursorLock.Sdk.Models;
+using Microsoft.Extensions.Logging;
+
+/// <summary>
+/// Interaction logic for MainWindow.xaml.
+/// </summary>
+public partial class MainWindow : Window, INotifyPropertyChanged
 {
-    using System;
-    using System.Collections.ObjectModel;
-    using System.ComponentModel;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Runtime.InteropServices;
-    using System.Windows;
-    using System.Windows.Input;
-    using System.Windows.Interop;
-    using AutoCursorLock.App.Extensions;
-    using AutoCursorLock.App.Models;
-    using AutoCursorLock.App.Services;
-    using AutoCursorLock.Models;
-    using AutoCursorLock.Native;
-    using AutoCursorLock.Sdk.Models;
-    using Microsoft.Extensions.Logging;
+    private readonly WindowInteropHelper windowInteropHelper;
+    private readonly SaveUserSettingsOperation saveUserSettingsOperation;
+    private readonly ILogger<MainWindow> logger;
+
+    private ApplicationEventSource applicationEventSource;
+
+    private bool globalLockEnabled = true;
+    private bool applicationLockEnabled = false;
+    private ProcessListItem? activeProcess;
+    private Key selectedKey;
 
     /// <summary>
-    /// Interaction logic for MainWindow.xaml.
+    /// Initializes a new instance of the <see cref="MainWindow"/> class.
     /// </summary>
-    public partial class MainWindow : Window, INotifyPropertyChanged
+    /// <param name="applicationEventSource">The application event source.</param>
+    /// <param name="saveUserSettingsOperation">The save user settings operation.</param>
+    /// <param name="userSettings">The user settings.</param>
+    /// <param name="logger">The logger.</param>
+    public MainWindow(
+        ApplicationEventSource applicationEventSource,
+        SaveUserSettingsOperation saveUserSettingsOperation,
+        UserSettings userSettings,
+        ILogger<MainWindow> logger)
     {
-        private ApplicationHandler applicationHandler;
+        this.applicationEventSource = applicationEventSource;
+        this.saveUserSettingsOperation = saveUserSettingsOperation;
+        this.logger = logger;
+        InitializeComponent();
 
-        private bool globalLockEnabled = true;
-        private bool applicationLockEnabled = false;
-        private WindowInteropHelper windowInteropHelper;
+        NotifyPropertyChanged(nameof(UserSettings));
 
-        private Key selectedKey;
+        this.mainGrid.DataContext = this;
 
-        private readonly SaveUserSettingsOperation saveUserSettingsOperation;
-        private readonly ILogger<MainWindow> logger;
+        MinimizeToTray.Enable(this);
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="MainWindow"/> class.
-        /// </summary>
-        public MainWindow(
-            ApplicationHandler applicationHandler,
-            SaveUserSettingsOperation saveUserSettingsOperation,
-            UserSettings userSettings,
-            ILogger<MainWindow> logger)
+        this.windowInteropHelper = new WindowInteropHelper(this);
+        UserSettings = userSettings;
+    }
+
+    /// <summary>
+    /// Event for property changed.
+    /// </summary>
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    /// <summary>
+    /// Gets the list of processes.
+    /// </summary>
+    public ObservableCollection<ProcessListItem> Processes { get; } = new ObservableCollection<ProcessListItem>();
+
+    /// <summary>
+    /// Gets the user settings.
+    /// </summary>
+    public UserSettings UserSettings { get; }
+
+    /// <summary>
+    /// Gets or sets the selected key.
+    /// </summary>
+    public Key SelectedKey
+    {
+        get
         {
-            this.applicationHandler = applicationHandler;
-            this.saveUserSettingsOperation = saveUserSettingsOperation;
-            this.logger = logger;
-            InitializeComponent();
-
-            NotifyPropertyChanged(nameof(UserSettings));
-
-            this.mainGrid.DataContext = this;
-
-            MinimizeToTray.Enable(this);
-
-            this.windowInteropHelper = new WindowInteropHelper(this);
-            UserSettings = userSettings;
+            return this.selectedKey;
         }
 
-        private IntPtr Hwnd => this.windowInteropHelper.Handle;
-
-        public event PropertyChangedEventHandler? PropertyChanged;
-
-        public ObservableCollection<ProcessListItem> Processes { get; } = new ObservableCollection<ProcessListItem>();
-
-        public UserSettings UserSettings { get; }
-
-        public Key SelectedKey
+        set
         {
-            get
-            {
-                return this.selectedKey;
-            }
+            this.selectedKey = value;
+            NotifyPropertyChanged(nameof(SelectedKey));
+        }
+    }
 
-            set
-            {
-                this.selectedKey = value;
-                NotifyPropertyChanged(nameof(SelectedKey));
-            }
+    /// <summary>
+    /// Gets or sets a value indicating whether global lock is enabled.
+    /// </summary>
+    public bool GlobalLockEnabled
+    {
+        get
+        {
+            return this.globalLockEnabled;
         }
 
-        public bool GlobalLockEnabled
+        set
         {
-            get
-            {
-                return this.globalLockEnabled;
-            }
+            this.globalLockEnabled = value;
+            NotifyPropertyChanged(nameof(GlobalLockEnabled));
+        }
+    }
 
-            set
-            {
-                this.globalLockEnabled = value;
-                NotifyPropertyChanged(nameof(GlobalLockEnabled));
-            }
+    /// <summary>
+    /// Gets or sets a value indicating whether application lock is enabled.
+    /// </summary>
+    public bool ApplicationLockEnabled
+    {
+        get
+        {
+            return this.applicationLockEnabled;
         }
 
-        public bool ApplicationLockEnabled
+        set
         {
-            get
-            {
-                return this.applicationLockEnabled;
-            }
+            this.applicationLockEnabled = value;
+            NotifyPropertyChanged(nameof(ApplicationLockEnabled));
+        }
+    }
 
-            set
-            {
-                this.applicationLockEnabled = value;
-                NotifyPropertyChanged(nameof(ApplicationLockEnabled));
-            }
+    /// <summary>
+    /// Gets or sets the currently in focus process, if it is an enabled process.
+    /// </summary>
+    /// <remarks>
+    /// Does not keep track of the process if it is not a process enabled by the user.
+    /// </remarks>
+    public ProcessListItem? ActiveProcess
+    {
+        get
+        {
+            return this.activeProcess;
         }
 
-        protected override void OnSourceInitialized(EventArgs e)
+        set
         {
-            base.OnSourceInitialized(e);
-            var source = (HwndSource)PresentationSource.FromVisual(this);
-            source.AddHook(WndProc);
+            this.activeProcess = value;
+            ApplicationLockEnabled = value != null;
+            NotifyPropertyChanged(nameof(ActiveProcess));
+        }
+    }
+
+    private IntPtr Hwnd => this.windowInteropHelper.Handle;
+
+    /// <summary>
+    /// Gets the list of enabled processes.
+    /// </summary>
+    /// <param name="e">Event args.</param>
+    protected override void OnSourceInitialized(EventArgs e)
+    {
+        base.OnSourceInitialized(e);
+        var source = (HwndSource)PresentationSource.FromVisual(this);
+        source.AddHook(WndProc);
+    }
+
+    /// <summary>
+    /// Event for when the window is closed.
+    /// </summary>
+    /// <param name="e">Event args.</param>
+    protected override async void OnClosed(EventArgs e)
+    {
+        base.OnClosed(e);
+        if (UserSettings.HotKey != null)
+        {
+            KeyHandler.Unregister(UserSettings.HotKey, Hwnd);
         }
 
-        protected override async void OnClosed(EventArgs e)
+        MouseHandler.UnlockCursor();
+
+        var userSettingsModel = UserSettings.ToModel();
+
+        await this.saveUserSettingsOperation.InvokeAsync(userSettingsModel);
+    }
+
+    private void HandleHotkey()
+    {
+        this.logger.LogDebug("Hotkey pressed");
+
+        GlobalLockEnabled = !GlobalLockEnabled;
+
+        this.applicationEventSource?.Update();
+    }
+
+    private void OnApplicationChanged(object? sender, ApplicationEventArgs e)
+    {
+        this.logger.LogDebug("Application changed: {ProcessName}", e.ProcessName);
+
+        ActiveProcess = UserSettings.EnabledProcesses.FirstOrDefault(x => x.Name == e.ProcessName);
+
+        AdjustLock(e.Handle);
+    }
+
+    private void AdjustLock(IntPtr hwnd)
+    {
+        if (GlobalLockEnabled && ActiveProcess is not null)
         {
-            base.OnClosed(e);
-            if (UserSettings.HotKey != null)
+            this.logger.LogInformation("Locking cursor to {ProcessName} {AppLockType}", ActiveProcess.Name, ActiveProcess.AppLockType);
+
+            var border = ActiveProcess.AppLockType switch
             {
-                KeyHandler.Unregister(UserSettings.HotKey, Hwnd);
-            }
-
-            MouseHandler.UnlockCursor();
-
-            var userSettingsModel = UserSettings.ToModel();
-
-            await this.saveUserSettingsOperation.InvokeAsync(userSettingsModel);
-        }
-
-        private void HandleHotkey()
-        {
-            this.logger.LogDebug("Hotkey pressed");
-
-            GlobalLockEnabled = !GlobalLockEnabled;
-
-            this.applicationHandler?.Update();
-        }
-
-        private void OnApplicationChanged(object? sender, ApplicationEventArgs e)
-        {
-            this.logger.LogDebug("Application changed: {ProcessName}", e.ProcessName);
-
-            ApplicationLockEnabled = UserSettings.EnabledProcesses.Any(x => x.Name == e.ProcessName);
-
-            if (ApplicationLockEnabled)
+                AppLockType.Window => ApplicationHandler.GetApplicationBorders(hwnd),
+                AppLockType.Monitor => ApplicationHandler.GetMonitorBorders(hwnd),
+                _ => throw new NotImplementedException("Invalid AppLockType")
+            };
+            if (!MouseHandler.LockCursorToBorder(border))
             {
-                this.logger.LogInformation("Locking cursor for {ProcessName}", e.ProcessName);
-            }
-
-            AdjustLock(e.Handle);
-        }
-
-        private void AdjustLock(IntPtr hwnd)
-        {
-            if (GlobalLockEnabled && ApplicationLockEnabled)
-            {
-                if (!MouseHandler.LockCursor(hwnd))
-                {
-                    this.logger.LogError("Lock cursor error code {ErrorCode}", Marshal.GetLastWin32Error());
-                }
-                else
-                {
-                    this.logger.LogDebug("Cursor locked");
-                }
+                this.logger.LogError("Lock cursor error code {ErrorCode}", Marshal.GetLastWin32Error());
             }
             else
             {
-                if (!MouseHandler.UnlockCursor())
-                {
-                    this.logger.LogError("Unlock cursor error code {ErrorCode}", Marshal.GetLastWin32Error());
-                }
-                else
-                {
-                    this.logger.LogDebug("Cursor unlocked");
-                }
+                this.logger.LogDebug("Cursor locked");
             }
         }
-
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+        else
         {
-            if (msg == NativeMethods.WM_HOTKEY_MSG_ID)
+            if (!MouseHandler.UnlockCursor())
             {
-                HandleHotkey();
+                this.logger.LogError("Unlock cursor error code {ErrorCode}", Marshal.GetLastWin32Error());
             }
-
-            return IntPtr.Zero;
-        }
-
-        private void RegisterHotKey()
-        {
-            if (UserSettings.HotKey != null)
+            else
             {
-                var success = KeyHandler.Register(UserSettings.HotKey, Hwnd);
-                this.logger.LogDebug("Register hotkey hook: {Success}", success);
-
-                if (!success)
-                {
-                    var errorCode = Marshal.GetLastWin32Error();
-                    this.logger.LogError("Error registering hotkey: {ErrorCode}", errorCode);
-                }
+                this.logger.LogDebug("Cursor unlocked");
             }
         }
+    }
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+    private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+    {
+        if (msg == NativeMethods.WM_HOTKEY_MSG_ID)
         {
-            RegisterHotKey();
+            HandleHotkey();
+        }
 
-            var success = this.applicationHandler.Register();
-            this.logger.LogDebug("Register application hook: {Success}", success);
+        return IntPtr.Zero;
+    }
+
+    private void RegisterHotKey()
+    {
+        if (UserSettings.HotKey != null)
+        {
+            var success = KeyHandler.Register(UserSettings.HotKey, Hwnd);
+            this.logger.LogDebug("Register hotkey hook: {Success}", success);
 
             if (!success)
             {
                 var errorCode = Marshal.GetLastWin32Error();
-                this.logger.LogError("Application hook error code {ErrorCode}", errorCode);
+                this.logger.LogError("Error registering hotkey: {ErrorCode}", errorCode);
             }
+        }
+    }
 
-            this.applicationHandler.ApplicationChanged += OnApplicationChanged;
+    private void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        RegisterHotKey();
 
-            this.applicationHandler.Update();
+        var success = this.applicationEventSource.Register();
+        this.logger.LogDebug("Register application hook: {Success}", success);
+
+        if (!success)
+        {
+            var errorCode = Marshal.GetLastWin32Error();
+            this.logger.LogError("Application hook error code {ErrorCode}", errorCode);
         }
 
-        private void RemoveButton_Click(object sender, RoutedEventArgs e)
+        this.applicationEventSource.ApplicationChanged += OnApplicationChanged;
+
+        this.applicationEventSource.Update();
+    }
+
+    private void RemoveButton_Click(object sender, RoutedEventArgs e)
+    {
+        var processItem = (ProcessListItem)this.enabledProcessList.SelectedItem;
+        UserSettings.EnabledProcesses.Remove(processItem);
+    }
+
+    private void AddButton_Click(object sender, RoutedEventArgs e)
+    {
+        var processItem = (ProcessListItem)this.processList.SelectedItem;
+
+        if (processItem != null)
         {
-            var processItem = (ProcessListItem)this.enabledProcessList.SelectedItem;
-            UserSettings.EnabledProcesses.Remove(processItem);
+            UserSettings.EnabledProcesses.Add(processItem);
         }
+    }
 
-        private void AddButton_Click(object sender, RoutedEventArgs e)
+    private void RefreshButton_Click(object sender, RoutedEventArgs e)
+    {
+        Processes.Clear();
+        var processes = Process.GetProcesses();
+        foreach (var p in processes)
         {
-            var processItem = (ProcessListItem)this.processList.SelectedItem;
-
-            if (processItem != null)
+            try
             {
-                UserSettings.EnabledProcesses.Add(processItem);
+                if (p.MainWindowHandle != IntPtr.Zero && p.MainModule?.FileName != null)
+                {
+                    var process = ProcessListItemExtensions.FromPath(p.MainModule.FileName);
+                    Processes.Add(process);
+                }
             }
-        }
-
-        private void RefreshButton_Click(object sender, RoutedEventArgs e)
-        {
-            Processes.Clear();
-            var processes = Process.GetProcesses();
-            foreach (var p in processes)
+            catch (Exception ex)
             {
-                try
-                {
-                    if (p.MainWindowHandle != IntPtr.Zero && p.MainModule?.FileName != null)
-                    {
-                        var process = ProcessListItemExtensions.FromPath(p.MainModule.FileName);
-                        Processes.Add(process);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    this.logger.LogError(ex, "Failed to get process list item for process: {ProcessName}", p.ProcessName);
-                }
+                this.logger.LogError(ex, "Failed to get process list item for process: {ProcessName}", p.ProcessName);
             }
         }
+    }
 
-        private void AboutItem_Click(object sender, RoutedEventArgs e)
-        {
-            var about = new AboutWindow();
-            about.ShowDialog();
-        }
+    private void AboutItem_Click(object sender, RoutedEventArgs e)
+    {
+        var about = new AboutWindow();
+        about.ShowDialog();
+    }
 
-        private void BtnRegisterHotKey_Click(object sender, RoutedEventArgs e)
+    private void BtnRegisterHotKey_Click(object sender, RoutedEventArgs e)
+    {
+        if (this.selectedKey != Key.None)
         {
-            if (this.selectedKey != Key.None)
+            var modifierKeys = new ModifierKey[2];
+            if (this.cmbModifierKey.SelectedValue != null)
             {
-                var modifierKeys = new ModifierKey[2];
-                if (this.cmbModifierKey.SelectedValue != null)
-                {
-                    modifierKeys[0] = (ModifierKey)this.cmbModifierKey.SelectedValue;
-                }
-
-                if (this.cmbModifier2Key.SelectedValue != null)
-                {
-                    modifierKeys[1] = (ModifierKey)this.cmbModifier2Key.SelectedValue;
-                }
-
-                UserSettings.HotKey = new HotKey(0, modifierKeys, this.selectedKey.ToVirtualKey());
-
-                RegisterHotKey();
+                modifierKeys[0] = (ModifierKey)this.cmbModifierKey.SelectedValue;
             }
-        }
 
-        private void BtnSetKey_Click(object sender, RoutedEventArgs e)
-        {
-            var keyDialog = new SelectKeyDialog();
-            keyDialog.ShowDialog();
+            if (this.cmbModifier2Key.SelectedValue != null)
+            {
+                modifierKeys[1] = (ModifierKey)this.cmbModifier2Key.SelectedValue;
+            }
 
-            SelectedKey = keyDialog.SelectedKey;
-        }
+            UserSettings.HotKey = new HotKey(0, modifierKeys, this.selectedKey.ToVirtualKey());
 
-        private void NotifyPropertyChanged(string propertyName)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+            RegisterHotKey();
         }
+    }
+
+    private void BtnSetKey_Click(object sender, RoutedEventArgs e)
+    {
+        var keyDialog = new SelectKeyDialog();
+        keyDialog.ShowDialog();
+
+        SelectedKey = keyDialog.SelectedKey;
+    }
+
+    private void NotifyPropertyChanged(string propertyName)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    private void AppLockSettingsButton_Click(object sender, RoutedEventArgs e)
+    {
+        var button = (Button)sender;
+        var processItem = (ProcessListItem)button.DataContext;
+
+        var appLockSettingsWindow = new AppLockSettingsWindow(processItem);
+        appLockSettingsWindow.ShowDialog();
     }
 }

@@ -1,0 +1,44 @@
+﻿<Window x:Class="AutoCursorLock.App.Views.AppLockSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoCursorLock.App.Views"
+        mc:Ignorable="d"
+        Title="App Lock Settings" Height="200" Width="600">
+    <Grid x:Name="mainGrid">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Column="0" Grid.Row="0" Margin="5">
+            <TextBlock Text="The type of cursor lock that should be applied when this application is in focus." />
+            <TextBlock>
+                <BulletDecorator>
+                    <BulletDecorator.Bullet>
+                        <Ellipse Width="5" Height="5" Fill="Black"/>
+                        </BulletDecorator.Bullet>
+                    <TextBlock Margin="5,0,0,0" Text="Window: locks the cursor to the application's window." />
+                </BulletDecorator>
+            </TextBlock>
+            <TextBlock>
+                <BulletDecorator>
+                    <BulletDecorator.Bullet>
+                        <Ellipse Width="5" Height="5" Fill="Black"/>
+                        </BulletDecorator.Bullet>
+                    <TextBlock Margin="5,0,0,0" Text="Monitor: locks the cursor to the monitor the application is placed on." />
+                </BulletDecorator>
+            </TextBlock>
+        </StackPanel>
+        <ComboBox
+            Grid.Column="1"
+            Grid.Row="0"
+            Margin="5"
+            MinWidth="80"
+            ItemsSource="{Binding AppLockTypeOptions}" 
+            SelectedItem="{Binding AppLockSettings.AppLockType}" />
+    </Grid>
+</Window>

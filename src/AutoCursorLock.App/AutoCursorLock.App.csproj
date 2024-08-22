@@ -9,6 +9,7 @@
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
     <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <AssemblyName>AutoCursorLock</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

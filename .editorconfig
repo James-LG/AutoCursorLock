@@ -211,3 +211,18 @@ dotnet_naming_style.begins_with_i.required_prefix = I
 dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator =
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
+
+# StyleCop overrides
+[*.cs]
+
+# Opening square brackets should not be preceded by a space: False positive with new array initialization `[]`
+dotnet_diagnostic.SA1010.severity = none
+
+# Closing parenthesis should not be preceded by a space: Don't like it.
+dotnet_diagnostic.SA1009.severity = none
+
+# Closing parenthesis should be on line of last parameter: Don't like it.
+dotnet_diagnostic.SA1111.severity = none
+
+# Parameter should begin with lower-case letter: False positive with record syntax.
+dotnet_diagnostic.SA1313.severity = none
