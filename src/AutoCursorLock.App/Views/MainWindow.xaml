@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:AutoCursorLock.App"
         xmlns:native="clr-namespace:AutoCursorLock.Native;assembly=AutoCursorLock.Native"
         xmlns:localExtensions="clr-namespace:AutoCursorLock.App.Extensions"
-        xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:models="clr-namespace:AutoCursorLock.Models"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:models="clr-namespace:AutoCursorLock.App.Models"
         xmlns:sdk="clr-namespace:AutoCursorLock.Sdk.Models;assembly=AutoCursorLock.Sdk"
         Loaded="Window_Loaded"
         mc:Ignorable="d"
@@ -143,7 +143,8 @@
                             </Grid.RowDefinitions>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="20"/>
-                                <ColumnDefinition Width="200"/>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="40"/>
                             </Grid.ColumnDefinitions>
                             <Image Grid.RowSpan="2"
                                     Source="{Binding Icon}"/>
@@ -154,6 +155,12 @@
                                     Grid.Row="1"
                                     TextTrimming="CharacterEllipsis"
                                     Text="{Binding Path}"/>
+                            <Button Grid.Column="2"
+                                    Grid.Row="0"
+                                    Grid.RowSpan="2"
+                                    Margin="5"
+                                    Content="⚙️"
+                                    Click="AppLockSettingsButton_Click"/>
                         </Grid>
                     </DataTemplate>
                 </ListView.ItemTemplate>

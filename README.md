@@ -1,8 +1,8 @@
 # AutoCursorLock
 
-![icon](./AutoCursorLock/favicon.ico)
+![icon](./src/AutoCursorLock.App/favicon.ico)
 
-Locks the cursor to a specified window while the window is in focus.
+Locks the cursor to a specified window or monitor while an application is in focus.
 
 ## Description
 

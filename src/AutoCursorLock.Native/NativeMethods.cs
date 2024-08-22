@@ -19,6 +19,9 @@ public static class NativeMethods
     /// </summary>
     public const int WM_HOTKEY_MSG_ID = 0x0312;
 
+    public const int MONITOR_DEFAULTTOPRIMERTY = 0x00000001;
+    public const int MONITOR_DEFAULTTONEAREST = 0x00000002;
+
     public delegate void WinEventDelegate(IntPtr hWinEventHook, uint eventType, IntPtr hwnd, int idObject, int idChild, uint dwEventThread, uint dwmsEventTime);
 
     public enum GetWindowLongIndex : int
@@ -87,10 +90,10 @@ public static class NativeMethods
     public static extern bool ClipCursor(IntPtr rect);
 
     [DllImport("user32.dll", SetLastError = true)]
-    public static extern bool ClipCursor(RECT rect);
+    public static extern bool ClipCursor(NativeRectangle rect);
 
     [DllImport("user32.dll")]
-    public static extern bool GetWindowRect(IntPtr hWnd, out RECT rect);
+    public static extern bool GetWindowRect(IntPtr hWnd, out NativeRectangle rect);
 
     [DllImport("user32.dll")]
     public static extern IntPtr GetForegroundWindow();
@@ -101,11 +104,26 @@ public static class NativeMethods
     [DllImport("user32.dll")]
     public static extern int GetSystemMetrics(SystemMetric index);
 
-    public struct RECT
+    [DllImport("user32.dll")]
+    public static extern IntPtr MonitorFromWindow(IntPtr hwnd, int flags);
+
+    [DllImport("user32.dll")]
+    public static extern bool GetMonitorInfo(IntPtr hMonitor, [In, Out]NativeMonitorInfo lpmi);
+
+    public struct NativeRectangle
     {
         public int left;
         public int top;
         public int right;
         public int bottom;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
+    public sealed class NativeMonitorInfo
+    {
+        public int Size = Marshal.SizeOf(typeof(NativeMonitorInfo));
+        public NativeRectangle Monitor;
+        public NativeRectangle Work;
+        public int Flags;
     }
 }

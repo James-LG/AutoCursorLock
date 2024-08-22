@@ -9,7 +9,7 @@ using System.Diagnostics;
 /// <summary>
 /// Handles the detection of application switching and exposes the corresponding events.
 /// </summary>
-public class ApplicationHandler
+public class ApplicationEventSource
 {
     /// <remarks>
     /// This has to be an instance member so it doesn't get garbage collected.

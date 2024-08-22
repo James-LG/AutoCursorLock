@@ -10,7 +10,7 @@
             "request": "launch",
             "preLaunchTask": "build",
             // If you have changed target frameworks, make sure to update the program path.
-            "program": "${workspaceFolder}/AutoCursorLock/bin/Debug/net7.0-windows/AutoCursorLock.dll",
+            "program": "${workspaceFolder}/AutoCursorLock/bin/Debug/net8.0-windows/AutoCursorLock.dll",
             "args": [],
             "cwd": "${workspaceFolder}/AutoCursorLock",
             // For more information about the 'console' field, see https://aka.ms/VSCode-CS-LaunchJson-Console

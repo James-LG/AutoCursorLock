@@ -1,17 +1,24 @@
+// Copyright (c) James La Novara-Gsell. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
 namespace AutoCursorLock.App;
 
 using AutoCursorLock.App.Services;
 using AutoCursorLock.App.Views;
-using AutoCursorLock.Models;
 using AutoCursorLock.Native;
-using AutoCursorLock.Sdk.Models;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Serilog;
-using System;
 
+/// <summary>
+/// Hosting extensions.
+/// </summary>
 internal static class HostingExtensions
 {
+    /// <summary>
+    /// Registers services for the application.
+    /// </summary>
+    /// <param name="services">The service collection to add to.</param>
+    /// <returns>The service collection with added services.</returns>
     public static IServiceCollection UseAutoCursorLockApp(this IServiceCollection services)
     {
         Log.Logger = new LoggerConfiguration()
@@ -33,6 +40,10 @@ internal static class HostingExtensions
         return services;
     }
 
+    /// <summary>
+    /// Creates the service provider.
+    /// </summary>
+    /// <returns>The service provider.</returns>
     public static ServiceProvider CreateContainer()
     {
         var services = new ServiceCollection();

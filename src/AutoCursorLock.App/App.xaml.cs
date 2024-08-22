@@ -13,31 +13,26 @@ using System.Windows;
 /// </summary>
 public partial class App : Application
 {
-    public static ServiceProvider Services { get; private set; } = HostingExtensions.CreateContainer();
-
+    /// <summary>
+    /// Initializes a new instance of the <see cref="App"/> class.
+    /// </summary>
     public App()
     {
         var currentDomain = AppDomain.CurrentDomain;
         currentDomain.UnhandledException += new UnhandledExceptionEventHandler(UnhandledExceptionHandler);
     }
 
-    protected override async void OnStartup(StartupEventArgs e)
-    {
-        var mainWindowFactory = Services.GetRequiredService<MainWindowFactory>();
-        var mainWindow = await mainWindowFactory.CreateAsync();
-        mainWindow.Show();
+    /// <summary>
+    /// Gets the service provider.
+    /// </summary>
+    public static ServiceProvider Services { get; private set; } = HostingExtensions.CreateContainer();
 
-        base.OnStartup(e);
-    }
-
-    protected override void OnExit(ExitEventArgs e)
-    {
-        Services.Dispose();
-
-        base.OnExit(e);
-    }
-
-    static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
+    /// <summary>
+    /// Handles unhandled exceptions.
+    /// </summary>
+    /// <param name="sender">The sender.</param>
+    /// <param name="e">Event args.</param>
+    protected static void UnhandledExceptionHandler(object sender, UnhandledExceptionEventArgs e)
     {
         var ex = (Exception)e.ExceptionObject;
 
@@ -49,5 +44,29 @@ public partial class App : Application
 
         // Exit the application.
         Environment.Exit(1);
+    }
+
+    /// <summary>
+    /// Starts the application.
+    /// </summary>
+    /// <param name="e">Event args.</param>
+    protected override async void OnStartup(StartupEventArgs e)
+    {
+        var mainWindowFactory = Services.GetRequiredService<MainWindowFactory>();
+        var mainWindow = await mainWindowFactory.CreateAsync();
+        mainWindow.Show();
+
+        base.OnStartup(e);
+    }
+
+    /// <summary>
+    /// Exits the application.
+    /// </summary>
+    /// <param name="e">Event args.</param>
+    protected override void OnExit(ExitEventArgs e)
+    {
+        Services.Dispose();
+
+        base.OnExit(e);
     }
 }

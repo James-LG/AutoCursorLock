@@ -1,15 +1,12 @@
 ﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-namespace AutoCursorLock.Models;
+namespace AutoCursorLock.App.Models;
 
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.IO;
-using AutoCursorLock.Dtos;
 using AutoCursorLock.Native;
-using Newtonsoft.Json;
 
 /// <summary>
 /// Represents the program settings as defined by the user.

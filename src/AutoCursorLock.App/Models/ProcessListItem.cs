@@ -1,12 +1,10 @@
 ﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
 // Licensed under the MIT License. See LICENSE in the project root for license information.
 
-namespace AutoCursorLock.Models;
+namespace AutoCursorLock.App.Models;
 
 using AutoCursorLock.Sdk.Models;
 using System;
-using System.Windows;
-using System.Windows.Interop;
 using System.Windows.Media.Imaging;
 
 /// <summary>
@@ -19,6 +17,7 @@ public record ProcessListItem
     /// </summary>
     /// <param name="name">The name of the process.</param>
     /// <param name="path">The path of the proceess' executable.</param>
+    /// <param name="appLockType">The type of app lock.</param>
     /// <param name="icon">The icon image of the process.</param>
     public ProcessListItem(string name, string path, AppLockType appLockType, BitmapSource? icon)
     {
@@ -37,6 +36,10 @@ public record ProcessListItem
     /// Gets the path of the process' executable.
     /// </summary>
     public string Path { get; }
+
+    /// <summary>
+    /// Gets the type of app lock.
+    /// </summary>
     public AppLockType AppLockType { get; init; }
 
     /// <summary>

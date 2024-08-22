@@ -1,15 +1,19 @@
-﻿namespace AutoCursorLock.App.Extensions;
+﻿// Copyright (c) James La Novara-Gsell. All Rights Reserved.
+// Licensed under the MIT License. See LICENSE in the project root for license information.
+
+namespace AutoCursorLock.App.Extensions;
 
 using AutoCursorLock.Native;
+using AutoCursorLock.Sdk.Models;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Data;
 using System.Windows.Input;
 
+/// <summary>
+/// Converts a <see cref="HotKey"/> to a string.
+/// </summary>
 public class HotKeyToStringConverter : IValueConverter
 {
     /// <inheritdoc/>
@@ -18,12 +22,13 @@ public class HotKeyToStringConverter : IValueConverter
         if (value is HotKey hotKey)
         {
             var keyString = KeyInterop.KeyFromVirtualKey(hotKey.Key).ToString();
-            if (hotKey.ModifierKeys.Length == 0)
+            var modifierKeys = hotKey.ModifierKeys.Where(x => x != ModifierKey.None).ToArray();
+            if (modifierKeys.Length == 0)
             {
                 return keyString;
             }
 
-            var modifierString = string.Join("+", hotKey.ModifierKeys);
+            var modifierString = string.Join("+", modifierKeys);
             return $"{modifierString}+{keyString}";
         }
 
