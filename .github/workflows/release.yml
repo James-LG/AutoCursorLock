@@ -21,8 +21,6 @@ jobs:
           package-name: AutoCursorLock
 
   add-archive:
-    env:
-      Solution_Name: AutoCursorLock
     needs: release-please
     if: ${{ needs.release-please.outputs.release_created }}
     name: Add archive to release
@@ -47,7 +45,7 @@ jobs:
 
       - name: Build archive
         run: |
-          Compress-Archive $env:Solution_Name\bin\Release\net8.0-windows\publish\* autocursorlock.zip
+          Compress-Archive src\AutoCursorLock.App\bin\Release\net8.0-windows\publish\* autocursorlock.zip
 
       - name: Upload Release Asset
         id: upload-release-asset
