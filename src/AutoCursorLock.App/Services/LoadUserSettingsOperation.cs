@@ -22,6 +22,16 @@ public class LoadUserSettingsOperation(
     /// <returns>The user settings.</returns>
     public async Task<UserSettingsModel> InvokeAsync()
     {
+        if (!File.Exists(Paths.UserSettingsPath))
+        {
+            logger.LogDebug("User settings file does not exist, returning default settings");
+            return new UserSettingsModel
+            {
+                HotKey = default,
+                AppLocks = [],
+            };
+        }
+
         var fileContent = await File.ReadAllTextAsync(Paths.UserSettingsPath);
 
         UserSettingsModel? userSettingsModel;
