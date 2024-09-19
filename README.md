@@ -1,6 +1,6 @@
 # AutoCursorLock
 
-![icon](./src/AutoCursorLock.App/favicon.ico)
+![icon](./src/AutoCursorLock.App/media/favicon.ico)
 
 Locks the cursor to a specified window or monitor while an application is in focus.
 
@@ -24,12 +24,13 @@ Games that accidentally allow the cursor to leave the game window.
 
 ![Screenshot](./images/Screenshot.png)
 
-### Why is this program better than others?
+### How does this program compare to other cursor-locking programs?
 
-You can select processes that will automatically cause the cursor to be locked,
-so you can open the program, minimize it to the tray, and forget about it.
-You can even Alt-Tab in and out of the game freely and be sure the cursor will be locked
-again when the game is in focus without manually toggling the locking with a hotkey.
+- AutoCursorLock can lock your cursor to the window's border, or whole screen.
+- The locks are enabled automatically when the window comes into focus.
+- You can open the program, minimize it to the tray, and forget about it.
+- You can Alt-Tab in and out of the game freely and be sure the cursor will be locked
+again when the game comes back into focus without manually toggling the locking with a hotkey.
 
 ## Usage
 
@@ -39,6 +40,19 @@ The selections are saved to `%appdata%/AutoCursorLock/settings.json` and loaded 
 
 Press your configured hotkey to toggle auto locking when a selected process is in focus,
 or alternatively use Alt+Tab to focus on a window that you did not configure to lock the cursor.
+
+## FAQ
+
+### Why do some applications have a question mark icon?
+
+This probably means AutoCursorLock experiences a permission denied error when inspecting the process.
+This is a flag that processes can set and there is nothing AutoCursorLock can do to resolve this.
+The good news is that other than the icon and application path missing, AutoCursorLock should work as usual.
+
+### I have an issue, where are the logs?
+
+If you are experiencing technical issues with AutoCursorLock, please include logs in your GitHub issue.
+The application logs can be found in `%appdata%/AutoCursorLock/log.txt`.
 
 ## Planned Features
 
