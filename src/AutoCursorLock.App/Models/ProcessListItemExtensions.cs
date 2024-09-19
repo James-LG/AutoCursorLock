@@ -4,6 +4,7 @@
 namespace AutoCursorLock.App.Models;
 
 using AutoCursorLock.Sdk.Models;
+using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -25,8 +26,8 @@ internal static class ProcessListItemExtensions
     public static ProcessListItem FromPath(string path)
     {
         var process = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(path))
-            .FirstOrDefault()
-            ?? throw new AutoCursorLockException($"Could not find process for path: {path}");
+        .FirstOrDefault()
+        ?? throw new AutoCursorLockException($"Could not find process for path: {path}");
 
         return FromNameAndPath(process.ProcessName, path);
     }
@@ -37,12 +38,20 @@ internal static class ProcessListItemExtensions
     /// <param name="name">The process' name.</param>
     /// <param name="path">The process' path.</param>
     /// <returns>The process list item.</returns>
-    public static ProcessListItem FromNameAndPath(string name, string path)
+    public static ProcessListItem FromNameAndPath(string name, string? path)
     {
-        using var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
-        var bitmapIcon = icon is null
-            ? null
-            : Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        var bitmapIcon = default(BitmapSource?);
+        if (path is not null)
+        {
+            using var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+            bitmapIcon = icon is null
+                ? null
+                : Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+        }
+        else
+        {
+            bitmapIcon = new BitmapImage(new Uri("pack://application:,,,/media/question-mark.png", UriKind.Absolute));
+        }
 
         return new ProcessListItem(name, path, AppLockType.Window, bitmapIcon);
     }

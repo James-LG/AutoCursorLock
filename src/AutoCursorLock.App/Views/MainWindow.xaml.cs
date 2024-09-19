@@ -304,14 +304,25 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             {
                 if (p.MainWindowHandle != IntPtr.Zero && p.MainModule?.FileName != null)
                 {
-                    var process = ProcessListItemExtensions.FromPath(p.MainModule.FileName);
+                    var process = ProcessListItemExtensions.FromNameAndPath(p.ProcessName, p.MainModule.FileName);
                     Processes.Add(process);
                 }
             }
             catch (Exception ex)
             {
-                this.logger.LogError(ex, "Failed to get process list item for process: {ProcessName}", p.ProcessName);
+                this.logger.LogWarning(ex, "Failed to get module info for process: {ProcessName}", p.ProcessName);
+
+                try
+                {
+                    var process = ProcessListItemExtensions.FromNameAndPath(p.ProcessName, null);
+                    Processes.Add(process);
+                }
+                catch (Exception ex2)
+                {
+                    this.logger.LogError(ex2, "Failed to create process list item for process: {ProcessName}", p.ProcessName);
+                }
             }
+
         }
     }
 

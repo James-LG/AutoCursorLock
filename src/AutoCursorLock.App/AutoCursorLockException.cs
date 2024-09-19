@@ -18,4 +18,9 @@ public class AutoCursorLockException : Exception
         : base(message)
     {
     }
+
+    public AutoCursorLockException(string message, Exception innerException)
+        : base(message, innerException)
+    {
+    }
 }

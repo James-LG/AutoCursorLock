@@ -147,6 +147,7 @@
                                 <ColumnDefinition Width="40"/>
                             </Grid.ColumnDefinitions>
                             <Image Grid.RowSpan="2"
+                                    Margin="0,0,4,0"
                                     Source="{Binding Icon}"/>
                             <TextBlock Grid.Column="1"
                                     TextTrimming="CharacterEllipsis"
@@ -199,7 +200,9 @@
                                 <ColumnDefinition Width="20"/>
                                 <ColumnDefinition Width="200"/>
                             </Grid.ColumnDefinitions>
-                            <Image Grid.RowSpan="2"
+                            <Image 
+                                    Grid.RowSpan="2"
+                                    Margin="0,0,4,0"
                                     Source="{Binding Icon}"/>
                             <TextBlock Grid.Column="1"
                                     TextTrimming="CharacterEllipsis"
