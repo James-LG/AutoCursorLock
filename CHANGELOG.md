@@ -1,5 +1,13 @@
 # Changelog
 
+### [2.0.2](https://www.github.com/James-LG/AutoCursorLock/compare/v2.0.1...v2.0.2) (2024-09-19)
+
+
+### Bug Fixes
+
+* **ci:** Fix archive path ([528bb78](https://www.github.com/James-LG/AutoCursorLock/commit/528bb78c1ac5bf0bb01317b2234f497700fe675d))
+* Handle permission errors when getting process modules ([af4a3c6](https://www.github.com/James-LG/AutoCursorLock/commit/af4a3c6fafcec11dd1d148d1ac5bccba13626fb2))
+
 ### [2.0.1](https://www.github.com/James-LG/AutoCursorLock/compare/v2.0.0...v2.0.1) (2024-08-22)
 
 
