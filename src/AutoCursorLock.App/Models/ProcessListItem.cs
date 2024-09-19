@@ -19,10 +19,10 @@ public record ProcessListItem
     /// <param name="path">The path of the proceess' executable.</param>
     /// <param name="appLockType">The type of app lock.</param>
     /// <param name="icon">The icon image of the process.</param>
-    public ProcessListItem(string name, string path, AppLockType appLockType, BitmapSource? icon)
+    public ProcessListItem(string name, string? path, AppLockType appLockType, BitmapSource? icon)
     {
         Name = name ?? throw new ArgumentNullException(nameof(name));
-        Path = path ?? throw new ArgumentNullException(nameof(path));
+        Path = path;
         AppLockType = appLockType;
         Icon = icon;
     }
@@ -35,7 +35,7 @@ public record ProcessListItem
     /// <summary>
     /// Gets the path of the process' executable.
     /// </summary>
-    public string Path { get; }
+    public string? Path { get; }
 
     /// <summary>
     /// Gets the type of app lock.

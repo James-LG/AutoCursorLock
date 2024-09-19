@@ -11,6 +11,6 @@ namespace AutoCursorLock.Sdk.Models;
 /// <param name="Type">The type of app lock to use.</param>
 public record AppLockSettingsModel(
     string Name,
-    string Path,
+    string? Path,
     AppLockType Type
 );

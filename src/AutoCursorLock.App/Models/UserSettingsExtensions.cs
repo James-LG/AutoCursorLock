@@ -25,17 +25,23 @@ public static class UserSettingsExtensions
         var processes = new ObservableCollection<ProcessListItem>();
         foreach (var appLock in userSettingsModel.AppLocks)
         {
-            if (File.Exists(appLock.Path))
+            try
             {
-                try
+                ProcessListItem processListItem;
+                if (File.Exists(appLock.Path))
                 {
-                    var processListItem = ProcessListItemExtensions.FromNameAndPath(appLock.Name, appLock.Path);
-                    processes.Add(processListItem);
+                    processListItem = ProcessListItemExtensions.FromNameAndPath(appLock.Name, appLock.Path);
                 }
-                catch (AutoCursorLockException ex)
+                else
                 {
-                    failures.Add($"Failed to create process list item for path '{appLock.Path}': {ex.Message}");
+                    processListItem = ProcessListItemExtensions.FromNameAndPath(appLock.Name, default);
                 }
+
+                processes.Add(processListItem);
+            }
+            catch (AutoCursorLockException ex)
+            {
+                failures.Add($"Failed to create process list item for path '{appLock.Path}': {ex.Message}");
             }
         }
 

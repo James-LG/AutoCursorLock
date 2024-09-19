@@ -18,7 +18,7 @@
         </Grid.RowDefinitions>
 
         <Image Grid.Row="0"
-                Source="favicon.ico"
+                Source="media\favicon.ico"
                 Height="64"
                 Width="64"
                 HorizontalAlignment="Left"/>

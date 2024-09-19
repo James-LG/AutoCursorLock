@@ -8,19 +8,22 @@
     <Nullable>enable</Nullable>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
-    <ApplicationIcon>favicon.ico</ApplicationIcon>
+    <ApplicationIcon>media\favicon.ico</ApplicationIcon>
     <AssemblyName>AutoCursorLock</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="favicon.ico" />
+    <None Remove="media\favicon.ico" />
     <None Remove="stylecop.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="favicon.ico">
+    <Content Include="media\favicon.ico">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Resource Include="media\question-mark.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
   <ItemGroup>
