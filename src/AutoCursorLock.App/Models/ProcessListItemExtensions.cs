@@ -26,24 +26,23 @@ internal static class ProcessListItemExtensions
     public static ProcessListItem FromPath(string path)
     {
         var process = Process.GetProcessesByName(Path.GetFileNameWithoutExtension(path))
-        .FirstOrDefault()
-        ?? throw new AutoCursorLockException($"Could not find process for path: {path}");
+            .FirstOrDefault()
+            ?? throw new AutoCursorLockException($"Could not find process for path: {path}");
 
-        return FromNameAndPath(process.ProcessName, path);
+        return FromAppLockSettings(new AppLockSettingsModel(process.ProcessName, path, AppLockType.Window, Margin: default));
     }
 
     /// <summary>
     /// Creates a <see cref="ProcessListItem"/> from a name and path.
     /// </summary>
-    /// <param name="name">The process' name.</param>
-    /// <param name="path">The process' path.</param>
+    /// <param name="appLockSettings">The app lock settings.</param>
     /// <returns>The process list item.</returns>
-    public static ProcessListItem FromNameAndPath(string name, string? path)
+    public static ProcessListItem FromAppLockSettings(AppLockSettingsModel appLockSettings)
     {
         var bitmapIcon = default(BitmapSource?);
-        if (path is not null)
+        if (appLockSettings.Path is not null && File.Exists(appLockSettings.Path))
         {
-            using var icon = System.Drawing.Icon.ExtractAssociatedIcon(path);
+            using var icon = System.Drawing.Icon.ExtractAssociatedIcon(appLockSettings.Path);
             bitmapIcon = icon is null
                 ? null
                 : Imaging.CreateBitmapSourceFromHIcon(icon.Handle, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
@@ -53,7 +52,7 @@ internal static class ProcessListItemExtensions
             bitmapIcon = new BitmapImage(new Uri("pack://application:,,,/media/question-mark.png", UriKind.Absolute));
         }
 
-        return new ProcessListItem(name, path, AppLockType.Window, bitmapIcon);
+        return new ProcessListItem(appLockSettings.Name, appLockSettings.Path, appLockSettings.Type, appLockSettings.Margin, bitmapIcon);
     }
 
     /// <summary>
@@ -66,7 +65,8 @@ internal static class ProcessListItemExtensions
         return new AppLockSettingsModel(
             processListItem.Name,
             processListItem.Path,
-            processListItem.AppLockType
+            processListItem.AppLockType,
+            processListItem.Margin
         );
     }
 
@@ -77,10 +77,6 @@ internal static class ProcessListItemExtensions
     /// <returns>The process list item.</returns>
     public static ProcessListItem ToViewModel(AppLockSettingsModel appLockSettingsModel)
     {
-        var processListItem = FromNameAndPath(appLockSettingsModel.Name, appLockSettingsModel.Path);
-        return processListItem with
-        {
-            AppLockType = appLockSettingsModel.Type
-        };
+        return FromAppLockSettings(appLockSettingsModel);
     }
 }

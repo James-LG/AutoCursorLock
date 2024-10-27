@@ -27,15 +27,7 @@ public static class UserSettingsExtensions
         {
             try
             {
-                ProcessListItem processListItem;
-                if (File.Exists(appLock.Path))
-                {
-                    processListItem = ProcessListItemExtensions.FromNameAndPath(appLock.Name, appLock.Path);
-                }
-                else
-                {
-                    processListItem = ProcessListItemExtensions.FromNameAndPath(appLock.Name, default);
-                }
+                var processListItem = ProcessListItemExtensions.FromAppLockSettings(appLock);
 
                 processes.Add(processListItem);
             }

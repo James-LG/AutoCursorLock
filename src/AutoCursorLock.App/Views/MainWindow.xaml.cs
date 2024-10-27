@@ -213,6 +213,12 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                 AppLockType.Monitor => ApplicationHandler.GetMonitorBorders(hwnd),
                 _ => throw new NotImplementedException("Invalid AppLockType")
             };
+
+            if (ActiveProcess.Margin is not null)
+            {
+                border = border.ApplyMargin(ActiveProcess.Margin);
+            }
+
             if (!MouseHandler.LockCursorToBorder(border))
             {
                 this.logger.LogError("Lock cursor error code {ErrorCode}", Marshal.GetLastWin32Error());
@@ -304,7 +310,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
             {
                 if (p.MainWindowHandle != IntPtr.Zero && p.MainModule?.FileName != null)
                 {
-                    var process = ProcessListItemExtensions.FromNameAndPath(p.ProcessName, p.MainModule.FileName);
+                    var process = ProcessListItemExtensions.FromAppLockSettings(AppLockSettingsModel.FromNameAndPath(p.ProcessName, p.MainModule.FileName));
                     Processes.Add(process);
                 }
             }
@@ -314,7 +320,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
                 try
                 {
-                    var process = ProcessListItemExtensions.FromNameAndPath(p.ProcessName, null);
+                    var process = ProcessListItemExtensions.FromAppLockSettings(AppLockSettingsModel.FromNameAndPath(p.ProcessName, path: null));
                     Processes.Add(process);
                 }
                 catch (Exception ex2)
