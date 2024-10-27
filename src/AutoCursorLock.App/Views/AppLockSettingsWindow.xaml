@@ -5,9 +5,13 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:AutoCursorLock.App.Views"
         mc:Ignorable="d"
-        Title="App Lock Settings" Height="200" Width="600">
+        Title="App Lock Settings" Height="300" Width="600">
     <Grid x:Name="mainGrid">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
@@ -40,5 +44,49 @@
             MinWidth="80"
             ItemsSource="{Binding AppLockTypeOptions}" 
             SelectedItem="{Binding AppLockSettings.AppLockType}" />
+        <TextBlock
+            Grid.Column="0"
+            Grid.Row="1">
+            Left-side margin
+        </TextBlock>
+        <TextBox
+            Grid.Column="1"
+            Grid.Row="1"
+            Margin="5"
+            MinWidth="80"
+            Text="{Binding AppLockSettings.Margin.Left}" />
+        <TextBlock
+            Grid.Column="0"
+            Grid.Row="2">
+            Top-side margin
+        </TextBlock>
+        <TextBox
+            Grid.Column="1"
+            Grid.Row="2"
+            Margin="5"
+            MinWidth="80"
+            Text="{Binding AppLockSettings.Margin.Top}" />
+        <TextBlock
+            Grid.Column="0"
+            Grid.Row="3">
+            Right-side margin
+        </TextBlock>
+        <TextBox
+            Grid.Column="1"
+            Grid.Row="3"
+            Margin="5"
+            MinWidth="80"
+            Text="{Binding AppLockSettings.Margin.Right}" />
+        <TextBlock
+            Grid.Column="0"
+            Grid.Row="4">
+            Bottom-side margin
+        </TextBlock>
+        <TextBox
+            Grid.Column="1"
+            Grid.Row="4"
+            Margin="5"
+            MinWidth="80"
+            Text="{Binding AppLockSettings.Margin.Bottom}" />
     </Grid>
 </Window>
