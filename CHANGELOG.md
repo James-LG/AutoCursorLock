@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.0](https://www.github.com/James-LG/AutoCursorLock/compare/v2.0.2...v2.1.0) (2024-10-27)
+
+
+### Features
+
+* Add per-application margin settings ([aa83955](https://www.github.com/James-LG/AutoCursorLock/commit/aa8395529726df285ba01821cdfb3e7ae05a2b97))
+
 ### [2.0.2](https://www.github.com/James-LG/AutoCursorLock/compare/v2.0.1...v2.0.2) (2024-09-19)
 
 
