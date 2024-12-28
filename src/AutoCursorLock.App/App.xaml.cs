@@ -6,6 +6,7 @@ namespace AutoCursorLock.App;
 using AutoCursorLock.App.Views;
 using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Linq;
 using System.Windows;
 
 /// <summary>
@@ -26,6 +27,8 @@ public partial class App : Application
     /// Gets the service provider.
     /// </summary>
     public static ServiceProvider Services { get; private set; } = HostingExtensions.CreateContainer();
+
+    private MinimizeToTray? minimizeToTray;
 
     /// <summary>
     /// Handles unhandled exceptions.
@@ -54,7 +57,24 @@ public partial class App : Application
     {
         var mainWindowFactory = Services.GetRequiredService<MainWindowFactory>();
         var mainWindow = await mainWindowFactory.CreateAsync();
-        mainWindow.Show();
+
+        this.minimizeToTray = new MinimizeToTray(mainWindow);
+
+        // get arguments
+        var minimizeArg = e.Args.FirstOrDefault(arg => arg == "--minimize") is not null;
+        if (minimizeArg)
+        {
+            var quietArg = e.Args.FirstOrDefault(arg => arg == "--quiet") is not null;
+
+            mainWindow.WindowState = WindowState.Minimized;
+            this.minimizeToTray.UpdateTrayState(showBalloon: !quietArg);
+        }
+        else
+        {
+            mainWindow.Show();
+        }
+
+        this.minimizeToTray.StartWatching();
 
         base.OnStartup(e);
     }
