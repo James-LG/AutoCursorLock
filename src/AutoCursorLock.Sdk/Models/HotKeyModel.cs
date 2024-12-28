@@ -11,13 +11,13 @@ using System.Text.Json.Serialization;
 public record HotKeyModel
 {
     /// <summary>
-    /// THe modifiers for the hot key.
+    /// Gets the modifiers for the hot key.
     /// </summary>
     [JsonRequired]
     required public ModifierKey[] Modifiers { get; init; }
 
     /// <summary>
-    /// The virtual key code for the hot key.
+    /// Gets the virtual key code for the hot key.
     /// </summary>
     [JsonRequired]
     required public int VirtualKey { get; init; }

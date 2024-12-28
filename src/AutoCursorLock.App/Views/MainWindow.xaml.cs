@@ -9,6 +9,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -29,7 +30,8 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly SaveUserSettingsOperation saveUserSettingsOperation;
     private readonly ILogger<MainWindow> logger;
 
-    private ApplicationEventSource applicationEventSource;
+    private readonly ApplicationEventSource applicationEventSource;
+    private readonly object activeProcessLock = new ();
 
     private bool globalLockEnabled = true;
     private bool applicationLockEnabled = false;
@@ -140,21 +142,29 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     {
         get
         {
-            return this.activeProcess;
+            lock (this.activeProcessLock)
+            {
+                return this.activeProcess;
+            }
         }
 
         set
         {
-            this.activeProcess = value;
-            ApplicationLockEnabled = value != null;
-            NotifyPropertyChanged(nameof(ActiveProcess));
+            lock (this.activeProcessLock)
+            {
+                this.activeProcess = value;
+                ApplicationLockEnabled = value != null;
+                NotifyPropertyChanged(nameof(ActiveProcess));
+            }
         }
     }
 
     private IntPtr Hwnd => this.windowInteropHelper.Handle;
 
+    private Timer? ReapplyTimer { get; set; }
+
     /// <summary>
-    /// Gets the list of enabled processes.
+    /// Runs when the Window handle is available.
     /// </summary>
     /// <param name="e">Event args.</param>
     protected override void OnSourceInitialized(EventArgs e)
@@ -198,25 +208,35 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         ActiveProcess = UserSettings.EnabledProcesses.FirstOrDefault(x => x.Name == e.ProcessName);
 
+        // dispose previous timer
+        ReapplyTimer?.Dispose();
+
+        // set up new timer if needed
+        if (ActiveProcess is not null && ActiveProcess.ReapplyLockInterval != 0)
+        {
+            ReapplyTimer = new Timer(_ => AdjustLock(e.Handle), null, ActiveProcess.ReapplyLockInterval, ActiveProcess.ReapplyLockInterval);
+        }
+
         AdjustLock(e.Handle);
     }
 
     private void AdjustLock(IntPtr hwnd)
     {
-        if (GlobalLockEnabled && ActiveProcess is not null)
+        var activeProcess = ActiveProcess;
+        if (GlobalLockEnabled && activeProcess is not null)
         {
-            this.logger.LogInformation("Locking cursor to {ProcessName} {AppLockType}", ActiveProcess.Name, ActiveProcess.AppLockType);
+            this.logger.LogInformation("Locking cursor to {ProcessName} {AppLockType}", activeProcess.Name, activeProcess.AppLockType);
 
-            var border = ActiveProcess.AppLockType switch
+            var border = activeProcess.AppLockType switch
             {
                 AppLockType.Window => ApplicationHandler.GetApplicationBorders(hwnd),
                 AppLockType.Monitor => ApplicationHandler.GetMonitorBorders(hwnd),
                 _ => throw new NotImplementedException("Invalid AppLockType")
             };
 
-            if (ActiveProcess.Margin is not null)
+            if (activeProcess.Margin is not null)
             {
-                border = border.ApplyMargin(ActiveProcess.Margin);
+                border = border.ApplyMargin(activeProcess.Margin);
             }
 
             if (!MouseHandler.LockCursorToBorder(border))
@@ -328,7 +348,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
                     this.logger.LogError(ex2, "Failed to create process list item for process: {ProcessName}", p.ProcessName);
                 }
             }
-
         }
     }
 
