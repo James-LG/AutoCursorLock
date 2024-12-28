@@ -29,7 +29,7 @@ internal static class ProcessListItemExtensions
             .FirstOrDefault()
             ?? throw new AutoCursorLockException($"Could not find process for path: {path}");
 
-        return FromAppLockSettings(new AppLockSettingsModel(process.ProcessName, path, AppLockType.Window, Margin: default));
+        return FromAppLockSettings(new AppLockSettingsModel(process.ProcessName, path, AppLockType.Window, Margin: default, ReapplyLockInterval: default));
     }
 
     /// <summary>
@@ -52,7 +52,7 @@ internal static class ProcessListItemExtensions
             bitmapIcon = new BitmapImage(new Uri("pack://application:,,,/media/question-mark.png", UriKind.Absolute));
         }
 
-        return new ProcessListItem(appLockSettings.Name, appLockSettings.Path, appLockSettings.Type, appLockSettings.Margin, bitmapIcon);
+        return new ProcessListItem(appLockSettings.Name, appLockSettings.Path, appLockSettings.Type, appLockSettings.Margin, appLockSettings.ReapplyLockInterval, bitmapIcon);
     }
 
     /// <summary>
@@ -66,7 +66,8 @@ internal static class ProcessListItemExtensions
             processListItem.Name,
             processListItem.Path,
             processListItem.AppLockType,
-            processListItem.Margin
+            processListItem.Margin,
+            processListItem.ReapplyLockInterval
         );
     }
 

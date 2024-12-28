@@ -10,11 +10,13 @@ namespace AutoCursorLock.Sdk.Models;
 /// <param name="Path">The path to the application.</param>
 /// <param name="Type">The type of app lock to use.</param>
 /// <param name="Margin">The margin around the window for the app lock.</param>
+/// <param name="ReapplyLockInterval">The interval in milliseconds before reapplying the lock while the window is in focus.</param>
 public record AppLockSettingsModel(
     string Name,
     string? Path,
     AppLockType Type,
-    AppLockMargin? Margin
+    AppLockMargin? Margin,
+    int ReapplyLockInterval
 )
 {
     /// <summary>
@@ -25,6 +27,6 @@ public record AppLockSettingsModel(
     /// <returns>The model.</returns>
     public static AppLockSettingsModel FromNameAndPath(string name, string? path)
     {
-        return new AppLockSettingsModel(name, path, AppLockType.Window, new AppLockMargin(0, 0, 0, 0));
+        return new AppLockSettingsModel(name, path, AppLockType.Window, new AppLockMargin(0, 0, 0, 0), ReapplyLockInterval: default);
     }
 }
