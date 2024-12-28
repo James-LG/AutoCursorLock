@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.2.0](https://www.github.com/James-LG/AutoCursorLock/compare/v2.1.0...v2.2.0) (2024-12-28)
+
+
+### Features
+
+* Add option to reapply lock on a timer ([3196602](https://www.github.com/James-LG/AutoCursorLock/commit/3196602fc1c8106a945d2bc6cc3b77a16176ff37))
+* Option to start AutoCursorLock when Windows starts ([0a0b108](https://www.github.com/James-LG/AutoCursorLock/commit/0a0b108606d54f0b2d56acfefd8146c16c0723b8)), closes [#27](https://www.github.com/James-LG/AutoCursorLock/issues/27)
+
 ## [2.1.0](https://www.github.com/James-LG/AutoCursorLock/compare/v2.0.2...v2.1.0) (2024-10-27)
 
 
