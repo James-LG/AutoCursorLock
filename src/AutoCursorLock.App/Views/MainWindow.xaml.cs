@@ -31,7 +31,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     private readonly ILogger<MainWindow> logger;
 
     private readonly ApplicationEventSource applicationEventSource;
-    private readonly object activeProcessLock = new ();
+    private readonly object activeProcessLock = new();
 
     private bool globalLockEnabled = true;
     private bool applicationLockEnabled = false;
@@ -60,10 +60,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         this.mainGrid.DataContext = this;
 
-        MinimizeToTray.Enable(this);
-
-        this.windowInteropHelper = new WindowInteropHelper(this);
         UserSettings = userSettings;
+
+        // create a window handle to start monitoring for hotkey presses and application focus changes
+        this.windowInteropHelper = new WindowInteropHelper(this);
+        this.windowInteropHelper.EnsureHandle();
     }
 
     /// <summary>
@@ -170,8 +171,23 @@ public partial class MainWindow : Window, INotifyPropertyChanged
     protected override void OnSourceInitialized(EventArgs e)
     {
         base.OnSourceInitialized(e);
-        var source = (HwndSource)PresentationSource.FromVisual(this);
+        var source = (HwndSource)HwndSource.FromHwnd(this.windowInteropHelper.EnsureHandle());
         source.AddHook(WndProc);
+
+        RegisterHotKey();
+
+        var success = this.applicationEventSource.Register();
+        this.logger.LogDebug("Register application hook: {Success}", success);
+
+        if (!success)
+        {
+            var errorCode = Marshal.GetLastWin32Error();
+            this.logger.LogError("Application hook error code {ErrorCode}", errorCode);
+        }
+
+        this.applicationEventSource.ApplicationChanged += OnApplicationChanged;
+
+        this.applicationEventSource.Update();
     }
 
     /// <summary>
@@ -286,24 +302,6 @@ public partial class MainWindow : Window, INotifyPropertyChanged
         }
     }
 
-    private void Window_Loaded(object sender, RoutedEventArgs e)
-    {
-        RegisterHotKey();
-
-        var success = this.applicationEventSource.Register();
-        this.logger.LogDebug("Register application hook: {Success}", success);
-
-        if (!success)
-        {
-            var errorCode = Marshal.GetLastWin32Error();
-            this.logger.LogError("Application hook error code {ErrorCode}", errorCode);
-        }
-
-        this.applicationEventSource.ApplicationChanged += OnApplicationChanged;
-
-        this.applicationEventSource.Update();
-    }
-
     private void RemoveButton_Click(object sender, RoutedEventArgs e)
     {
         var processItem = (ProcessListItem)this.enabledProcessList.SelectedItem;
@@ -398,5 +396,11 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
         var appLockSettingsWindow = new AppLockSettingsWindow(processItem);
         appLockSettingsWindow.ShowDialog();
+    }
+
+    private void SettingsItem_Click(object sender, RoutedEventArgs e)
+    {
+        var settingsWindow = new GeneralSettingsWindow();
+        settingsWindow.ShowDialog();
     }
 }

@@ -8,7 +8,6 @@
         xmlns:localExtensions="clr-namespace:AutoCursorLock.App.Extensions"
         xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:models="clr-namespace:AutoCursorLock.App.Models"
         xmlns:sdk="clr-namespace:AutoCursorLock.Sdk.Models;assembly=AutoCursorLock.Sdk"
-        Loaded="Window_Loaded"
         mc:Ignorable="d"
         Title="AutoCursorLock"
         Height="620"
@@ -39,6 +38,10 @@
         </Grid.ColumnDefinitions>
 
         <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Settings"
+                        Click="SettingsItem_Click"/>
+            </MenuItem>
             <MenuItem Header="_Help">
                 <MenuItem Header="_About"
                         Click="AboutItem_Click"/>

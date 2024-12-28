@@ -1,0 +1,34 @@
+﻿<Window x:Class="AutoCursorLock.App.Views.GeneralSettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:AutoCursorLock.App.Views"
+        mc:Ignorable="d"
+        Title="General Settings" Height="450" Width="800">
+    <Grid x:Name="mainGrid" ShowGridLines="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <TextBlock
+            Grid.Column="0"
+            Grid.Row="0"
+            Margin="5">
+            Automatically start the application when Windows starts
+        </TextBlock>
+        <CheckBox
+            Grid.Column="1"
+            Grid.Row="0"
+            Margin="5"
+            IsChecked="{Binding StartWithWindows}"
+            Checked="StartWithWindowsCheckBox_Checked"
+            Unchecked="StartWithWindowsCheckBox_Unchecked"/>
+
+    </Grid>
+</Window>
