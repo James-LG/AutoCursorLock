@@ -1,5 +1,12 @@
 # Changelog
 
+### [2.2.1](https://www.github.com/James-LG/AutoCursorLock/compare/v2.2.0...v2.2.1) (2025-02-14)
+
+
+### Bug Fixes
+
+* Default log level to info and add setting to change it ([c1e8d92](https://www.github.com/James-LG/AutoCursorLock/commit/c1e8d9220632cf34828b637103a59be6a4a54a25)), closes [#32](https://www.github.com/James-LG/AutoCursorLock/issues/32)
+
 ## [2.2.0](https://www.github.com/James-LG/AutoCursorLock/compare/v2.1.0...v2.2.0) (2024-12-28)
 
 
