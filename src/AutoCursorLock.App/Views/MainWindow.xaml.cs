@@ -400,7 +400,7 @@ public partial class MainWindow : Window, INotifyPropertyChanged
 
     private void SettingsItem_Click(object sender, RoutedEventArgs e)
     {
-        var settingsWindow = new GeneralSettingsWindow();
+        var settingsWindow = new GeneralSettingsWindow(UserSettings);
         settingsWindow.ShowDialog();
     }
 }

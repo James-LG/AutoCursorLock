@@ -7,6 +7,8 @@ using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using AutoCursorLock.Native;
+using Serilog.Core;
+using Serilog.Events;
 
 /// <summary>
 /// Represents the program settings as defined by the user.
@@ -20,10 +22,12 @@ public class UserSettings : INotifyPropertyChanged
     /// </summary>
     /// <param name="enabledProcesses">The processes enabled byh the user.</param>
     /// <param name="hotKey">The hot key to toggle the cursor lock.</param>
-    public UserSettings(ObservableCollection<ProcessListItem> enabledProcesses, HotKey? hotKey)
+    /// <param name="loggingSwitch">The logging level for the application.</param>
+    public UserSettings(ObservableCollection<ProcessListItem> enabledProcesses, HotKey? hotKey, LoggingLevelSwitch loggingSwitch)
     {
         EnabledProcesses = enabledProcesses ?? throw new ArgumentNullException(nameof(enabledProcesses));
         HotKey = hotKey;
+        LoggingSwitch = loggingSwitch;
     }
 
     /// <inheritdoc/>
@@ -54,6 +58,11 @@ public class UserSettings : INotifyPropertyChanged
             NotifyPropertyChanged(nameof(HotKey));
         }
     }
+
+    /// <summary>
+    /// Gets or sets the logging level for the application.
+    /// </summary>
+    public LoggingLevelSwitch LoggingSwitch { get; set; }
 
     private void NotifyPropertyChanged(string propertyName)
     {

@@ -30,5 +30,18 @@
             Checked="StartWithWindowsCheckBox_Checked"
             Unchecked="StartWithWindowsCheckBox_Unchecked"/>
 
+        <TextBlock
+            Grid.Column="0"
+            Grid.Row="1"
+            Margin="5">
+            Logging level
+        </TextBlock>
+        <ComboBox
+            Grid.Column="1"
+            Grid.Row="1"
+            Margin="5"
+            ItemsSource="{Binding LogEventLevels}" 
+            SelectedItem="{Binding LogLevel, Mode=TwoWay}" />
+
     </Grid>
 </Window>

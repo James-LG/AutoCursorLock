@@ -5,6 +5,7 @@ namespace AutoCursorLock.App.Services;
 
 using AutoCursorLock.Sdk.Models;
 using Microsoft.Extensions.Logging;
+using Serilog.Core;
 using System.IO;
 using System.Text.Json;
 using System.Threading.Tasks;
