@@ -8,6 +8,7 @@ using AutoCursorLock.App.Views;
 using AutoCursorLock.Native;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
+using Serilog.Core;
 
 /// <summary>
 /// Hosting extensions.
@@ -21,11 +22,17 @@ internal static class HostingExtensions
     /// <returns>The service collection with added services.</returns>
     public static IServiceCollection UseAutoCursorLockApp(this IServiceCollection services)
     {
+        var logLevelSwitch = new LoggingLevelSwitch();
+
         Log.Logger = new LoggerConfiguration()
-            .MinimumLevel.Debug()
+            .MinimumLevel.ControlledBy(logLevelSwitch)
             .WriteTo.Console()
             .WriteTo.Debug()
-            .WriteTo.File(Paths.LogPath, retainedFileCountLimit: 5)
+            .WriteTo.File(
+                path: Paths.LogPath,
+                rollingInterval: RollingInterval.Day,
+                retainedFileCountLimit: 1
+            )
             .CreateLogger();
 
         services.UseAutoCursorLockNative();
@@ -34,6 +41,7 @@ internal static class HostingExtensions
             .AddSingleton<MainWindowFactory>()
             .AddSingleton<LoadUserSettingsOperation>()
             .AddSingleton<SaveUserSettingsOperation>()
+            .AddSingleton(logLevelSwitch)
             .AddLogging(b => b
                 .AddSerilog());
 

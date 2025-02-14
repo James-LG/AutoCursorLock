@@ -3,6 +3,10 @@
 
 namespace AutoCursorLock.App.Views;
 
+using AutoCursorLock.App.Models;
+using AutoCursorLock.Sdk.Models;
+using Serilog.Core;
+using Serilog.Events;
 using System;
 using System.Diagnostics;
 using System.Windows;
@@ -14,10 +18,13 @@ public partial class GeneralSettingsWindow : Window
 {
     private readonly string shortcutPath;
 
+    private readonly UserSettings userSettings;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="GeneralSettingsWindow"/> class.
     /// </summary>
-    public GeneralSettingsWindow()
+    /// <param name="userSettings">The user settings model.</param>
+    public GeneralSettingsWindow(UserSettings userSettings)
     {
         InitializeComponent();
 
@@ -27,12 +34,27 @@ public partial class GeneralSettingsWindow : Window
         StartWithWindows = System.IO.File.Exists(this.shortcutPath);
 
         this.mainGrid.DataContext = this;
+        this.userSettings = userSettings;
     }
 
     /// <summary>
     /// Gets or sets a value indicating whether to start the application when Windows starts.
     /// </summary>
     public bool StartWithWindows { get; set; }
+
+    /// <summary>
+    /// Gets or sets the logging level for the application.
+    /// </summary>
+    public LogEventLevel LogLevel
+    {
+        get => this.userSettings.LoggingSwitch.MinimumLevel;
+        set => this.userSettings.LoggingSwitch.MinimumLevel = value;
+    }
+
+    /// <summary>
+    /// Gets the log event levels.
+    /// </summary>
+    public LogEventLevel[] LogEventLevels => Enum.GetValues<LogEventLevel>();
 
     private void StartWithWindowsCheckBox_Checked(object sender, RoutedEventArgs e)
     {

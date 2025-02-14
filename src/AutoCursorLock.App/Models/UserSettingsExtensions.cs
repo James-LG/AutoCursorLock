@@ -4,9 +4,9 @@
 namespace AutoCursorLock.App.Models;
 
 using AutoCursorLock.Sdk.Models;
+using Serilog.Core;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.IO;
 using System.Linq;
 
 /// <summary>
@@ -18,8 +18,9 @@ public static class UserSettingsExtensions
     /// Converts a <see cref="UserSettingsModel"/> to a <see cref="UserSettings"/>.
     /// </summary>
     /// <param name="userSettingsModel">The model.</param>
+    /// <param name="loggingLevelSwitch">The logging level switch.</param>
     /// <returns>The view model.</returns>
-    public static ConversionResult<UserSettings> ToViewModel(this UserSettingsModel userSettingsModel)
+    public static ConversionResult<UserSettings> ToViewModel(this UserSettingsModel userSettingsModel, LoggingLevelSwitch loggingLevelSwitch)
     {
         var failures = new List<string>();
         var processes = new ObservableCollection<ProcessListItem>();
@@ -37,9 +38,13 @@ public static class UserSettingsExtensions
             }
         }
 
+        // pass the logging switch through, but set the log level beforehand
+        loggingLevelSwitch.MinimumLevel = userSettingsModel.LogLevel;
+
         var userSettings = new UserSettings(
             processes,
-            userSettingsModel.HotKey?.ToViewModel(id: 0)
+            userSettingsModel.HotKey?.ToViewModel(id: 0),
+            loggingLevelSwitch
         );
 
         return new ConversionResult<UserSettings>(userSettings, failures);
@@ -56,6 +61,7 @@ public static class UserSettingsExtensions
         {
             HotKey = userSettings.HotKey?.ToModel(),
             AppLocks = userSettings.EnabledProcesses.Select(p => p.ToModel()).ToArray(),
+            LogLevel = userSettings.LoggingSwitch.MinimumLevel,
         };
     }
 }

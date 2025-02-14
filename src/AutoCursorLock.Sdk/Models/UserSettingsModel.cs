@@ -3,6 +3,7 @@
 
 namespace AutoCursorLock.Sdk.Models;
 
+using Serilog.Events;
 using System.Text.Json.Serialization;
 
 /// <summary>
@@ -11,12 +12,17 @@ using System.Text.Json.Serialization;
 public record UserSettingsModel
 {
     /// <summary>
-    /// The hot key to use to toggle the cursor lock.
+    /// Gets the hot key to use to toggle the cursor lock.
     /// </summary>
     public HotKeyModel? HotKey { get; init; }
 
     /// <summary>
-    /// The app locks to use.
+    /// Gets the log level.
+    /// </summary>
+    public LogEventLevel LogLevel { get; init; } = LogEventLevel.Information;
+
+    /// <summary>
+    /// Gets the app locks to use.
     /// </summary>
     [JsonRequired]
     required public AppLockSettingsModel[] AppLocks { get; init; }
